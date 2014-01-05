@@ -17,7 +17,10 @@
 # Maintained by - David Keeney<dkeeney@rdbhost.com>
 
 
-from rdbhdb import rdbhdb
+try:
+    from rdbhdb import rdbhdb
+except ImportError:
+    import rdbhdb
 Cursor = rdbhdb.Cursor
 
 class DictCursor(Cursor):

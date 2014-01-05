@@ -13,8 +13,8 @@ setup(name="rdbhdb",
       maintainer = 'David Keeney',
       maintainer_email = 'dkeeney@rdbhost.com',
       url = 'http://www.rdbhost.com/',
-      download_url='https://github.com/rdbhost/Rdbhdb',
       package_dir={'rdbhdb':'lib'},
+      install_requires = ['urllib3 >= 1.5'],
       packages=['rdbhdb'],
       long_description = """
       Rdbhost hosts PostgreSQL databases, queried through HTTP 

@@ -26,9 +26,11 @@ try:
     import logging
 except:
     logging = None
-    
 
-from rdbhdb import rdbhdb
+try:
+    from rdbhdb import rdbhdb
+except ImportError:
+    import rdbhdb
 _cursor = rdbhdb.Cursor
 _connection = rdbhdb.Connection
 
