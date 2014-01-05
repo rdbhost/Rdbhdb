@@ -1,0 +1,700 @@
+
+
+
+
+                       rdbhdb User's Guide
+                         rdbhdb v. 0.9
+
+
+
+rdbhdb is an interface to the RdbHost database web service. A pure 
+Python module, it implements the Python DB API interface (version 2), 
+conforming to the specification PEP-249.
+
+
+Installation
+
+Extract the contents of the current version of rdbhdb in 
+any folder. Change to the sub-folder rdbhdb. You must have Python 
+installed in the system. Execute the command: python setup.py install.
+
+Usage
+
+The primary purpose of rdbhdb is to enable Python programmers to use 
+the RdbHost database web service from client Python scripts. Existing 
+programs which use another database using an API 2.0 conformant driver 
+can be readily adapted to use RdbHost; Likewise, it is fairly 
+straightforward to adapt a program written for RdbHost using rdbhdb to 
+another database system if there was a need.
+
+The general sequence of operations in a program using the services of 
+RdbHost is as follows:
+
+Import the rdbhdb driver. Classes in other modules of the distribution, 
+like extensions, and extras should also be imported if their 
+functionalities are used.
+Open a connection to the RdbHost service making use of the connect 
+constructor to the Connection object. The constructor requires the role 
+and authcode of a valid account on the RdbHost service to be provided. 
+To setup a valid account the user must initially register with RdbHost 
+service online at http://www.rdbhost.com/. This connection is not a 
+full PostgreSQL connection, but rather a client-side simulated 
+connection with the API mandated methods and functionality. 
+
+Once a connection has been established, a cursor object needs to be 
+created using the .cursor method of the Connection object, as the 
+database operations are performed using methods of the Cursor class. 
+One has the option to create a default Cursor with attributes as 
+defined in PEP-249, or one of several custom cursors with special 
+features. You can also derive your own customised cursors.
+
+
+SQL queries and other commands can be issued to the database using the 
+.execute or .executemany methods of the cursor object.
+
+Result sets retrieved from the database by SELECT type commands can be 
+fetched using the .fetchone, .fetchmany, or .fetchall methods of the 
+cursor object.
+
+While the above steps outline the general flow of control of program 
+segments accessing the RdbHost database web service using rdbhdb, the 
+examples at the end of this user guide provide further illustration.
+
+Programmer's Reference
+
+The rdbhdb driver implements the following standard features mandated
+by PEP-249.:
+
+Functions and attributes
+
+The top level functions and attributes defined within the rdbhdb module 
+are described below.
+
+connect(role, [authcode=authcode], [host='rdbhost.com'])
+
+Constructor for creating a connection to the database.Returns a 
+Connection Object. Parameters are the role, authcode, and host of a 
+valid account on the RdbHost database web service. The first positional 
+parameter, role, is always required. The other parameters are optional 
+and are entered as named parameters. The host defaults to 'www.rdbhost.com', 
+which at the time of writing (2009 March) is the only meaningful value.  
+The authcode is necessary for operations using the 's' role, but not for 
+the 'r' role.  The service provides you one of each role, for each account.  
+See the online documentation for further information, at 
+http://www.rdbhost.com/howitworks.html .
+
+apilevel
+
+String constant stating the supported DB API level, '2.0'
+
+threadsafety
+
+Integer constant stating the level of thread safety the interface supports. The 
+threadsafety of rdbhdb is 2, which means: threads may share a Connection.
+
+paramstyle
+
+String constant stating the type of parameter marker formatting 
+expected by the interface. The paramstyle of rdbhdb is 'pyformat' (= 
+python enhanced format codes),
+
+e.g., 'INSERT INTO flowers VALUES (%(flower)s)' {'flower':'rose'}.
+
+Note that any literal percent signs in the query string passed to 
+execute() must be escaped, like %%.
+
+Note also that parameter placeholders can only be used to insert column 
+values. They can not be used for other parts of SQL, such as table 
+names, statements, etc.
+
+Connection Objects
+
+Connection objects are returned by the connect() function. The 
+following methods are defined on Connection Objects.
+
+.close()
+
+Closes the connection by invalidating the authcode. The connection will 
+be unusable from this point onward. A Programming Error exception will 
+be raised if any operation is attempted with the connection. The same 
+applies to all cursor objects trying to use the connection.
+
+
+.commit()
+
+Because of the nature of the web service that simply receives single 
+requests and returns a response, without persistent true connections or 
+transactions, this method does nothing.
+
+.cursor(cursor_factory = None)
+
+Creates a cursor object. Commands to the backend PostgreSQL server of RdbHost 
+database web service are executed through methods of the Cursor object. The 
+cursor method takes an optional named parameter, cursor_factory. If 
+cursor_factory is not specified the result rows (see the fetch* methods 
+of Cursor Objects) are returned as a list of tuples. If cursor_factory 
+is specified it should be a custom Cursor class derived from Cursor. For 
+example if cursor_factory is specified as DictCursor, each result row is 
+returned as a dictionary, using the column names as keys of the 
+corresponding values.
+
+Cursor Objects
+
+These objects represent a database cursor, which is used to manage 
+the context of a fetch operation. The following attributes and methods 
+are defined on Cursor Objects:
+
+.description
+
+This read-only attribute is a sequence of 7-item sequences. Each of 
+these sequences contains information describing one result column. As 
+implemented so far, all values but the first two are None:
+
+(name, type_code, display_size, internal_size, precision, scale, null_ok)
+
+Currently rdbhdb provides the first two items (name and type_code)amd 
+sets the other five to None. This attribute is None for operations that 
+do not return rows or if the cursor has not had an operation invoked 
+via the .execute*() method yet.
+
+.rowcount
+
+This read-only attribute specifies the number of rows that the last 
+.execute*() produced (for DQL statements like 'select') or affected 
+(for DML statements like 'update' or 'insert'). rowcount is set to -1 
+in case no .execute*() has been performed on the cursor or the rowcount 
+of the last operation cannot be determined by the interface.
+
+.arraysize
+
+This read/write attribute specifies the number of rows to fetch at 
+a time with .fetchmany(). It defaults to 1 meaning to fetch a single 
+row at a time.
+
+.close()
+
+Closes the cursor immediately. The cursor will be unusable from this 
+point onward; a ProgramingError exception is raised if any operation 
+is attempted with a closed cursor.
+
+.execute(operation[, parameters])
+
+Prepares and executes a database operation (query or command). 
+Parameters are provided as a sequence and are bound to variables in 
+the operation as specified in the module's paramstyle attribute. For 
+paramstyle 'format', the variables must be '%s' and are just 
+substituted in order found in the operation string.
+
+.executemany(operation, seq_of_parameters)
+
+Prepares a database operation (query or command) and then executes it 
+against all parameter sequences found in the sequence seq_of_parameters.
+
+.fetchone()
+
+Fetch the next row of a query result set, returning a single sequence, 
+or None when no more data is available. A ProgrammingError exception is 
+raised if the previous call to .execute*() did not produce any result 
+set or no call was issued yet.
+
+.fetchmany([size=cursor.arraysize])
+
+Fetches the next set of rows of a query result, returning a sequence of 
+sequences (a list of tuples, or a list of dictionaries if the dictionary 
+cursor is used). An empty sequence is returned when no more rows are 
+available. The number of rows to fetch per call is specified by the 
+parameter. If it is not given, the cursor's arraysize determines the 
+number of rows to be fetched. The method tries to fetch as many rows as 
+indicated by the size parameter. If this is not possible due to the 
+specified number of rows not being available, fewer rows are returned. 
+A ProgrammingError exception is raised if the previous call to .execute*() 
+did not produce any result set or no call was issued yet.
+
+.fetchall()
+
+Fetches all (remaining) rows of a query result, returning them as a 
+sequence of sequences (a list of tuples, or a list of dictionaries if 
+the dictionary cursor is used). A ProgrammingError exception is raised 
+if the previous call to .execute*() did not produce any result set or 
+no call was issued yet.
+
+.setinputsizes(sizes)
+
+This method currently does nothing.
+
+.setoutputsize(size[, column])
+
+This method currently does nothing.
+
+.nextset()
+
+If the query was an aggregate query, with multiple statements, each statement
+will have a result set (even if that resultset includes no records).  This
+method discards the remainder of the current result set, and makes the next
+one current.  The values for discription and rowcount attributes change to
+those of the new result set.  The .fetch*() methods subsequently apply to the
+new result set. Returns None when there are no further result sets, otherwise
+True.
+
+Aggregate queries are not suitable for use with autorefill cursors.
+
+
+Text and Binary Data
+
+Most data fields are converted to strings for transmission to the server.
+Data fields must generally be xml-encodable, without any character values
+illegal in xml.  If you wish to use binary data as parameters to a query,
+use 'buffer' type for the parameter.   Rdbhdb handles 'buffer' data as binary.
+To be safe, 'buffer' data inserted or updated to a table should go into
+fields of type 'bytea'.
+
+
+Extensions and Additional Features
+
+In addition to the above essential features of API 2.0 level compliance, 
+rdbhdb provides several others for the convenience of the programmer.
+
+.execute_deferred(query[, params])
+
+This method executes the query in deferred mode, where the execution time
+limit is much higher (600 seconds rather than 8).  It is not guaranteed to run
+immediately, and it does not fetch any records, so do not call .fetch*()
+after it.  Some errors will raise an exception immediately, others will remain
+hidden.
+
+
+Encrypted Connections
+
+If you want your communications with the server to be handled on a
+secure transport layer, set the connection attribute 'https' to True
+(conn.https = True).
+
+GZip Compression
+
+Data transfer from the server to the client are compressed.  If for
+some reason you do not want data compression, set the connection attribute
+'compression' to False
+(conn.compression = False).
+
+
+The AutoRefill cursor
+
+The RdbHost web service puts a limit of 100 on the number of records that 
+can be fetched from a single SELECT type query. In case of a need to deal 
+with larger result sets a programmer can choose the autorefill mode 
+instead of the default. The autorefill mode can be chosen by setting 
+the Connection class property .autorefill = True. With this mode chosen, 
+rdbhdb automatically reissues the original SELECT type command with an 
+incremented OFFSET whenever the client attempts to fetch a row past the 
+RdbHost's recordset limit. If the original SELECT type command itself 
+uses SQL's LIMIT and/or OFFSET options, those values are honored. The 
+autorefill mode can be set for all cursors globally 
+(rdbhdb.Connection.autorefill = True), or for a specific Connection 
+object (conn.autorefill = True).  The autorefill cursor autorefilling
+functionality is not defined for use with aggregate queries (those containing
+multiple statements delimited by ';'), and will generally raise an Exception
+in circumstances requiring refilling.
+
+Dictionary Cursor
+
+The default cursor's fetch* methods return each row of a result set as 
+a tuple of the column values. A dictionary cursor instead returns it as 
+a dictionary; each column of the row is a (key => value) pair, where the 
+key is the column name and the value the column content. The dictionary 
+cursor can be chosen instead of the default in rdbhdb by invoking the 
+cursor construction as conn.cursor(cursor_factory=extras.DictCursor), 
+where conn is a connection object.
+
+Psycopg cursors
+
+The popular DB API module 'psycopg', for PostgreSQL, defines a number of 
+custom cursors. Several of these have been 'borrowed' by rdbhdb. They are, 
+PsycopDictCursor, PsycopRealDictCursor, PsycopLoggingCursor, and 
+PsycopMinTimeLoggingCursor. Examples at the end of this user guide show 
+examples using each one of these cursors.
+
+Some Examples
+
+The principal benefit of using DB API's is that they enable database 
+access using code that is by and large independent of the particular 
+database system and the programming language from which it is accessed. 
+The first example illustrates this point by adapting an example that has 
+been used with another database system (kitebird)
+
+Example 1
+
+# animal.py - create animal table and
+# retrieve information from it
+
+import sys
+from rdbhdb import rdbhdb as db
+from rdbhdb import extensions
+DictCursor = extensions.DictCursor
+
+# connect to the RdbHost server
+role = 'enter your role here'
+authcode = 'enter your authcode here'
+try:
+    conn = db.connect (role, authcode=authcode)
+except db.Error, e:
+    print "Error %d: %s" % (e.args[0], e.args[1])
+    sys.exit (1)
+# create the animal table and populate it
+try:
+    cursor = conn.cursor ()
+    cursor.execute ("DROP TABLE IF EXISTS animal")
+    cursor.execute ("""
+        CREATE TABLE animal
+        (
+          name     CHAR(40),
+          category CHAR(40)
+        )
+      """)
+    cursor.execute ("""
+        INSERT INTO animal (name, category)
+        VALUES
+          ('snake', 'reptile'),
+          ('frog', 'amphibian'),
+          ('tuna', 'fish'),
+          ('racoon', 'mammal')
+      """)
+    print "Number of rows inserted: %d" % cursor.rowcount
+
+    # perform a fetch loop using fetchone()
+
+    cursor.execute ("SELECT name, category FROM animal")
+    while (1):
+        row = cursor.fetchone ()
+        if row == None:
+            break
+        print "%s, %s" % (row[0], row[1])
+    print "Number of rows returned: %d" % cursor.rowcount
+
+    # perform a fetch loop using fetchall()
+
+    cursor.execute ("SELECT name, category FROM animal")
+    rows = cursor.fetchall ()
+    for row in rows:
+        print "%s, %s" % (row[0], row[1])
+    print "Number of rows returned: %d" % cursor.rowcount
+
+# issue a statement that changes the name by including data values
+# literally in the statement string, then change the name back
+# by using placeholders
+
+    cursor.execute ("""
+          UPDATE animal SET name = 'turtle'
+          WHERE name = 'snake'
+        """)
+    print "Number of rows updated: %d" % cursor.rowcount
+    print "Reptile category example changed to turtle from snake"
+    # perform a fetch loop using fetchall()
+
+    cursor.execute ("SELECT name, category FROM animal")
+    rows = cursor.fetchall ()
+    for row in rows:
+        print "%s, %s" % (row[0], row[1])
+
+    cursor.execute ("""
+          UPDATE animal SET name = %s
+          WHERE name = %s
+        """, ("snake", "turtle"))
+    print "Number of rows updated: %d" % cursor.rowcount
+    print "Reptile category example changed back to snake"
+
+# create a dictionary cursor so that column values
+# can be accessed by name rather than by position
+
+    cursor.close ()
+    cursor = conn.cursor (curDef=DictCursor)
+    cursor.execute ("SELECT name, category FROM animal")
+    result_set = cursor.fetchall ()
+    for row in result_set:
+        print "%s, %s" % (row["name"], row["category"])
+    print "Number of rows returned: %d" % cursor.rowcount
+
+    cursor.close ()
+
+except db.Error, e:
+    print "Error %s: %s" % (e.args[0], e.args[1])
+    sys.exit (1)
+
+conn.commit ()
+conn.close ()
+As mentioned above, the RdbHost database web service puts a limit of 
+100 on the number of records that can be fetched from a single SELECT 
+type query. Example 2 below shows how this limit can be worked around 
+by using the API and setting autorefill mode.
+
+Example 2
+
+# Example shows use of AutoFill Cursor to break RdbHost record limit.
+
+from rdbhdb import rdbhdb as db
+role = 'enter your role here'
+authcode = 'enter your authcode here'
+conn=db.connect(role, authcode=authcode)
+conn.autorefill = True
+dc = conn.cursor()
+qsetup = "CREATE TABLE rdbhdbTest (value) AS SELECT * FROM 
+                                        generate_series(1, 250)"
+q = "SELECT * FROM rdbhdbTest LIMIT 60 OFFSET 150"
+#q = "SELECT * FROM rdbhdbTest"
+qteardown = "DROP TABLE IF EXISTS rdbhdbTest"
+dc.execute(qsetup)
+dc.execute(q)
+print "******  Fetching 15 rows using fetchone  **************"
+for i in range(15):
+    print dc.fetchone()
+print "*********  Fetching 25 rows using fetchmany  ************"
+rows=dc.fetchmany(25)
+for row in rows:
+    print row
+print "***  Fetching all remaining rows (20) using fetchall  ********"
+rows=dc.fetchall()
+for row in rows:
+    print row
+dc.execute(qteardown)
+This work-around functios by rewriting the query and resending it to 
+the server. Depending on the query, this is not always the same as 
+running a large number of fetches on one persistent connection. Use 
+it if it works for you. Write a custom solution if you need specific 
+functionality.
+
+
+The following example shows use of the dictionary cursor.
+
+Example 3
+
+
+# test_dict_cursor.py 
+# Example shows using dictionary cursor
+
+import rdbhdb.rdbhdb as db
+from rdbhdb import extensions
+DictCursor = extensions.DictCursor
+
+role = 'enter your role here'
+authcode = 'enter your authcode here'
+conn=db.connect(role, authcode=authcode)
+q1 = "SELECT * FROM accounts;"
+
+print "\n\nFetching all rows using fetchall:\n"
+
+dc = conn.cursor(curDef=DictCursor)
+s=dc.execute(q1)
+recs = dc.fetchall()
+print(recs) 
+
+print "\n\nFetching rows one by one using fetchone:\n"
+print "Row 1:"
+dc = conn.cursor(curDef=DictCursor)
+s=dc.execute(q1)
+rdict = dc.fetchone()
+print(rdict) 
+print "Row 2:"
+rdict = dc.fetchone()
+print(rdict) 
+print "Row 3:"
+rdict = dc.fetchone()
+print(rdict) 
+
+print "\n\nFetching several rows using fetchmany:\n"
+dc = conn.cursor(curDef=DictCursor)
+s=dc.execute(q1)
+recs = dc.fetchmany(ct=2)
+print (recs)
+
+
+The following example shows the working of Psycop's dictionary cursor.
+
+Example 4
+
+# test_psycop_DictCursor
+# Example shows using psycopg's DictCursor
+
+from rdbhdb import rdbhdb as db
+from rdbhdb import extras
+
+DictCursor = extras.DictCursor
+
+role = 'enter your role here'
+authcode = 'enter your authcode here'
+conn=db.connect(role, authcode=authcode)
+q1 = "SELECT * FROM accounts;"
+
+print "\n\nFetching all rows using fetchall:\n"
+
+dc = conn.cursor(curDef=DictCursor)
+s=dc.execute(q1)
+recs = dc.fetchall()
+print(recs) 
+
+print "\n\nFetching rows one by one using fetchone:\n"
+print "Row 1:"
+dc = conn.cursor(curDef=DictCursor)
+s=dc.execute(q1)
+rdict = dc.fetchone()
+print(rdict) 
+print "Row 2:"
+rdict = dc.fetchone()
+print(rdict) 
+print "Row 3:"
+rdict = dc.fetchone()
+print(rdict) 
+
+print "\n\nFetching several rows using fetchmany:\n"
+dc = conn.cursor(cursor_factory=DictCursor)
+s=dc.execute(q1)
+recs = dc.fetchmany(size=2)
+print (recs)
+
+The following example shows the working of Psycopg's logging cursor.
+
+Example 5
+
+# test_psycop_LoggingCursor.py
+# Example shows using psycopg's LoggingCursor
+
+from rdbhdb import rdbhdb as db
+from rdbhdb import extras
+
+DictCursor = extras.DictCursor
+LoggingCursor = extras.LoggingCursor
+LoggingConnection = extras.LoggingConnection
+
+role = 'enter your role here'
+authcode = 'enter your authcode here'
+logconn=LoggingConnection(role, authcode=authcode, host='www.rdbhost.com')
+f = open('cursor.log', 'w')
+logconn.initialize(f)
+logcur = logconn.cursor()
+
+q1 = "SELECT * FROM accounts;"
+
+print "\n\nFetching all rows using fetchall:\n"
+
+s=logcur.execute(q1)
+recs = logcur.fetchall()
+print(recs) 
+
+print "\n\nFetching rows one by one using fetchone:\n"
+print "Row 1:"
+logcur = logconn.cursor()
+s=logcur.execute(q1)
+recs = logcur.fetchone()
+print(recs) 
+print "Row 2:"
+recs = logcur.fetchone()
+print(recs) 
+print "Row 3:"
+recs = logcur.fetchone()
+print(recs) 
+
+print "\n\nFetching several rows using fetchmany:\n"
+logcur = logconn.cursor()
+s=logcur.execute(q1)
+# LoggingCursor uses parent's (rdbhdb's Cursor's) fetchmany.
+# Hence use ct rather than size for No. of rows to fetch.
+recs = logcur.fetchmany(ct=2)
+print (recs)
+f.close()
+
+The following example shows the working of Psycopg's minimum time 
+logging cursor.
+
+Example 6
+
+# test_psycop_MinTimeLooggingCursor.py
+# Example shows using psycopg's MinTimeLoggingCursor
+
+from rdbhdb import rdbhdb as db
+from rdbhdb import extras
+
+MinTimeLoggingCursor = extras.MinTimeLoggingCursor
+MinTimeLoggingConnection = extras.MinTimeLoggingConnection
+
+role = 'enter your role here'
+authcode = 'enter your authcode here'
+mtlconn=MinTimeLoggingConnection(role, authcode=authcode)
+f = open('cursor.log', 'w')
+mtlconn.initialize(f, mintime=0)
+mtlcur = mtlconn.cursor()
+
+q1 = "SELECT * FROM accounts;"
+
+print "\n\nFetching all rows using fetchall:\n"
+
+s=mtlcur.execute(q1)
+recs = mtlcur.fetchall()
+print(recs) 
+
+print "\n\nFetching rows one by one using fetchone:\n"
+print "Row 1:"
+mtlcur = mtlconn.cursor()
+s=mtlcur.execute(q1)
+recs = mtlcur.fetchone()
+print(recs) 
+print "Row 2:"
+recs = mtlcur.fetchone()
+print(recs) 
+print "Row 3:"
+recs = mtlcur.fetchone()
+print(recs) 
+
+print "\n\nFetching several rows using fetchmany:\n"
+mtlcur = mtlconn.cursor()
+s=mtlcur.execute(q1)
+# MinTimeLoggingCursor uses parent's (rdbhdb's Cursor's) fetchmany.
+# Hence use ct rather than size for No. of rows to fetch.
+recs = mtlcur.fetchmany(ct=2)
+print (recs)
+f.close()
+
+The following example shows the working of Psycopg's 'real' dictionary 
+cursor.
+
+Example 7
+
+# test_psycop_RealDictCursor.py
+# Example shows using psycopg's RealDictCursor
+
+from rdbhdb import rdbhdb as db
+from rdbhdb import extras
+
+DictCursor = extras.DictCursor
+RealDictCursor = extras.RealDictCursor
+RealDictConnection = extras.RealDictConnection
+
+role = 'enter your role here'
+authcode = 'enter your authcode here'
+rdconn=RealDictConnection(role, authcode=authcode)
+rdc = rdconn.cursor()
+
+q1 = "SELECT * FROM accounts;"
+
+print "\n\nFetching all rows using fetchall:\n"
+
+s=rdc.execute(q1)
+recs = rdc.fetchall()
+print(recs) 
+
+print "\n\nFetching rows one by one using fetchone:\n"
+print "Row 1:"
+rdc = rdconn.cursor()
+s=rdc.execute(q1)
+rdict = rdc.fetchone()
+print(rdict) 
+print "Row 2:"
+rdict = rdc.fetchone()
+print(rdict) 
+print "Row 3:"
+rdict = rdc.fetchone()
+print(rdict) 
+
+print "\n\nFetching several rows using fetchmany:\n"
+rdc = rdconn.cursor()
+s=rdc.execute(q1)
+recs = rdc.fetchmany(size=2)
+print (recs)
+

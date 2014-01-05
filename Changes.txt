@@ -1,0 +1,53 @@
+
+
+
+Changes to Rdbhdb module
+
+
+0.9.5
+
+One module serves both py2 and py3.  There are two unittest
+suites and both pass, with same module.  
+Added request compression, and changed dependencies to use 
+urllib3 instead of urllib2.
+Removed python 2.4 support. No more 'any' function.
+
+
+0.9.4
+
+Consolidation release, to package py2 and py3 together.
+
+
+0.9.2
+
+Provides types with request input parameters.
+Converts recieved date fields into Dates, Times, Datetimes, or Decimals, as relevant
+Times and Datetimes reported to microsecond resolution.  
+
+
+0.9.1
+
+Fixed Python 2.4 incompatibility (no 'any' function)
+Made https = True the default, for encrypted data transfer
+
+
+0.9
+
+Added data compression for data sent by server
+Added .execute_deferred method
+Added .nextset method to handle multiple queries and multiple result sets per
+  request.
+Added .https attribute to force use of TLS/SSL
+Now handles binary data from buffer vars without text-encoding.
+Removed broken examples from package
+Added working unit tests to package
+
+
+0.8.1
+
+bugfixes
+
+
+0.8
+
+Original Release
