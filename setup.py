@@ -28,6 +28,6 @@ setup(name="rdbhdb",
       'Intended Audience :: Developers',
       'License :: OSI Approved :: GNU General Public License (GPL)',
       'Programming Language :: Python :: 2',
-      'Programming Language :: Python :: 3,
+      'Programming Language :: Python :: 3',
       ]
      )
