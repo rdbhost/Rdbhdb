@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
-import sys, os
+import os, sys
 
 import dbexceptions
 import accounts

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import accounts
 import dbapi20
 import unittest
 import sys

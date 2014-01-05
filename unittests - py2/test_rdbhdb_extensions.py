@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 import unittest
-import sys, os
+import os, sys
+import accounts
 
 sys.path.insert(0, '..')
 

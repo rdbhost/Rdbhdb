@@ -3,6 +3,7 @@
 import dbapi20
 import unittest
 import sys, os
+import accounts
 
 sys.path.insert(0, '..')
 
