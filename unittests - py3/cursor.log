@@ -6,3 +6,7 @@ insert into extras_cities values ('Houston')
 insert into extras_cities values ('Madison')
 insert into extras_cities values ('Memphis')
 select name from extras_cities
+select name from extras_cities
+select name from extras_cities
+CREATE TABLE extras_states (name varchar(80));
+select name from extras_states

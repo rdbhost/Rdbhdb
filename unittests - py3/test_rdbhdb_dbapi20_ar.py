@@ -3,6 +3,7 @@
 import dbapi20
 import unittest
 import sys
+import accounts
 
 from rdbhdb import rdbhdb
 
@@ -10,8 +11,8 @@ class test_Rdbhdb_ar(dbapi20.DatabaseAPI20Test):
     driver = rdbhdb
     connect_args = ()
     connect_kw_args = {
-        'role' : 's0000000004',
-        'authcode' : "ccUgclJl1xMZ0y1B2PQ2xRWYZX2akgaH6Ii7pmWmPnCGgqN1wO" }
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'] }
 
     lower_func = 'lower' # For stored procedure test
 

@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 import dbexceptions
+import accounts
 import unittest
 import sys, os
 
-sys.path.insert(0, '../lib')
+sys.path.insert(0, '..')
 
 from rdbhdb import rdbhdb
 
@@ -20,9 +21,9 @@ class test_Rdbhdb_dbexc(dbexceptions.DatabaseExcTest):
 
     connect_args = ()
     connect_kw_args = {
-        'role' : 's0000000004',
-        'authcode' : "ccUgclJl1xMZ0y1B2PQ2xRWYZX2akgaH6Ii7pmWmPnCGgqN1wO",
-        'host' : HOST }
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': HOST }
 
     lower_func = 'lower' # For stored procedure test
 

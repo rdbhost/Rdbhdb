@@ -5,7 +5,9 @@ import unittest
 import time
 import sys, os
 
-sys.path.insert(0, '../lib')
+import accounts
+
+sys.path.insert(0, '..')
 
 from rdbhdb import rdbhdb
 
@@ -20,9 +22,9 @@ class test_Rdbhdb_sql(unittest.TestCase):
 
     connect_args = ()
     connect_kw_args = {
-        'role' : 's0000000004',
-        'authcode' : "ccUgclJl1xMZ0y1B2PQ2xRWYZX2akgaH6Ii7pmWmPnCGgqN1wO",
-        'host' : HOST }
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': HOST }
 
     table_prefix = 'extras_' # If you need to specify a prefix for tables
 

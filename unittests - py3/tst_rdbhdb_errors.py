@@ -3,7 +3,7 @@
 import unittest
 import sys
 
-sys.path.insert(0, '../lib')
+sys.path.insert(0, '..')
 
 from rdbhdb import rdbhdb
 from rdbhdb import extras
@@ -15,8 +15,8 @@ class test_Rdbhdb_err(unittest.TestCase):
 
     connect_args = ()
     connect_kw_args = {
-        'role' : 's0000000004',
-        'authcode' : "ccUgclJl1xMZ0y1B2PQ2xRWYZX2akgaH6Ii7pmWmPnCGgqN1wO" }
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'] }
 
     table_prefix = 'err_' # If you need to specify a prefix for tables
 

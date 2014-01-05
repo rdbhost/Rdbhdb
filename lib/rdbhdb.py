@@ -29,8 +29,8 @@ from decimal import Decimal
 import zlib
 
 try:
-    from . import pgoid
-    from . import six
+    from rdbhdb import pgoid
+    from rdbhdb import six
 except ImportError as e:
     import pgoid
     import six

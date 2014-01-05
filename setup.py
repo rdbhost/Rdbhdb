@@ -7,16 +7,16 @@ from distutils.core import setup
 
 setup(name="rdbhdb",
       version='0.9.5',
-      description = "DB API module for accessing hosted databases at www.rdbhost.com",
+      description="DB API module for accessing hosted databases at www.rdbhost.com",
       author='David Keeney, Kris Sundaram',
       author_email='dkeeney@rdbhost.com, sundram@hotmail.com',
-      maintainer = 'David Keeney',
-      maintainer_email = 'dkeeney@rdbhost.com',
-      url = 'http://www.rdbhost.com/',
+      maintainer='David Keeney',
+      maintainer_email='dkeeney@rdbhost.com',
+      url='http://www.rdbhost.com/',
       package_dir={'rdbhdb':'lib'},
-      install_requires = ['urllib3 >= 1.5'],
+      install_requires=['urllib3 >= 1.5'],
       packages=['rdbhdb'],
-      long_description = """
+      long_description="""
       Rdbhost hosts PostgreSQL databases, queried through HTTP 
       (it is a web service). This module provides a DB API 2 API 
       to access rdbhost.com hosted databases from your application.
