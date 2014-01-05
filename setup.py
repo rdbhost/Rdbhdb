@@ -29,5 +29,6 @@ setup(name="rdbhdb",
       'License :: OSI Approved :: GNU General Public License (GPL)',
       'Programming Language :: Python :: 2',
       'Programming Language :: Python :: 3',
-      ]
+      ],
+      license='MIT'
      )

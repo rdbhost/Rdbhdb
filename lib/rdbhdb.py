@@ -42,7 +42,6 @@ except ImportError:
     except ImportError:
         from django.utils import simplejson as json
 import urllib3
-# from exceptions import StandardError
 
 __version__ = '0.9.5'
 
@@ -673,7 +672,7 @@ class AutoRefill(Cursor):
     description = property(_getdesc, None, None)
 
 
-def post_it(role, authcode, host, fmt, q, flds, addhdrs):
+def post_it_sync(role, authcode, host, fmt, q, flds, addhdrs):
     """post fields to url via POST, return result page. """
 
     fields = {'q': q,
@@ -704,3 +703,6 @@ def post_it(role, authcode, host, fmt, q, flds, addhdrs):
     return headers, text
 
     
+post_it = post_it_sync
+
+##
