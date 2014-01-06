@@ -41,6 +41,7 @@ except ImportError:
         import simplejson as json
     except ImportError:
         from django.utils import simplejson as json
+
 import urllib3
 
 __version__ = '0.9.5'
