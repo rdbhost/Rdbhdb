@@ -10,7 +10,7 @@ sys.path.insert(0, '..')
 
 from rdbhdb import rdbhdb
 
-need_version = '0.9.3'
+need_version = '0.9.5'
 
 class test_Rdbhdb_compressedRequest(unittest.TestCase):
 
