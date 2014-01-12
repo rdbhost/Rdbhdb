@@ -31,11 +31,8 @@ try:
     from rdbhdb import rdbhdb
 except ImportError:
     import rdbhdb
-_cursor = rdbhdb.Cursor
-_connection = rdbhdb.Connection
 
-
-class DictCursorBase(_cursor):
+class DictCursorBase(rdbhdb.Cursor):
     """Base class for all dict-like cursors."""
 
     def __init__(self, *args, **kwargs):
@@ -43,42 +40,43 @@ class DictCursorBase(_cursor):
             row_factory = kwargs['row_factory']
             del kwargs['row_factory']
         else:
-            raise NotImplementedError(
-                "DictCursorBase can't be instantiated without a row factory.")
-        _cursor.__init__(self, *args, **kwargs)
+            raise NotImplementedError("DictCursorBase can't be instantiated without a row factory.")
+
+        rdbhdb.Cursor.__init__(self, *args, **kwargs)
         self._query_executed = 0
         self.row_factory = row_factory
 
     def fetchone(self):
         if self._query_executed:
             self._build_index()
-        return _cursor.fetchone(self)
+        return rdbhdb.Cursor.fetchone(self)
 
     def fetchmany(self, size=None):
         if self._query_executed:
             self._build_index()
-        return _cursor.fetchmany(self, size)
+        return rdbhdb.Cursor.fetchmany(self, size)
 
     def fetchall(self):
         if self._query_executed:
             self._build_index()
-        return _cursor.fetchall(self)
+        return rdbhdb.Cursor.fetchall(self)
     
     def next(self):
         if self._query_executed:
             self._build_index()
-        res = _cursor.fetchone(self)
+        res = rdbhdb.Cursor.fetchone(self)
         if res is None:
             raise StopIteration()
         return res
 
-class DictConnection(_connection):
+class DictConnection(rdbhdb.Connection):
     """A connection that uses DictCursor automatically."""
+
     def cursor(self, name=None):
         if name is None:
-            return _connection.cursor(self, cursor_factory=DictCursor)
+            return rdbhdb.Connection.cursor(self, cursor_factory=DictCursor)
         else:
-            return _connection.cursor(self, name, cursor_factory=DictCursor)
+            return rdbhdb.Connection.cursor(self, name, cursor_factory=DictCursor)
 
 class DictCursor(DictCursorBase):
     """A cursor that keeps a list of column name -> index mappings."""
@@ -90,9 +88,9 @@ class DictCursor(DictCursorBase):
     def execute(self, query, vars=None, async=0):
         self.index = {}
         self._query_executed = 1
-        return _cursor.execute(self, query, vars)
+        return rdbhdb.Cursor.execute(self, query, vars)
         # following line has been modified as above; rdbhdb does not use async
-        #return _cursor.execute(self, query, vars, async)
+        #return rdbhdb.Cursor.execute(self, query, vars, async)
     
     def _build_index(self):
         if self._query_executed == 1 and self.description:
@@ -101,7 +99,7 @@ class DictCursor(DictCursorBase):
             self._query_executed = 0           
 
 class DictRow(list):
-    """A row object that allow by-colun-name access to data."""
+    """A row object that allow by-column-name access to data."""
 
     def __init__(self, cursor):
         self._index = cursor.index
@@ -138,13 +136,14 @@ class DictRow(list):
             yield n, list.__getitem__(self, v)
 
 
-class RealDictConnection(_connection):
+class RealDictConnection(rdbhdb.Connection):
     """A connection that uses RealDictCursor automatically."""
     def cursor(self, name=None):
         if name is None:
-            return _connection.cursor(self, cursor_factory=RealDictCursor)
+            return rdbhdb.Connection.cursor(self, cursor_factory=RealDictCursor)
         else:
-	        return _connection.cursor(self, name, cursor_factory=RealDictCursor)
+	        return rdbhdb.Connection.cursor(self, name, cursor_factory=RealDictCursor)
+
 
 class RealDictCursor(DictCursorBase):
     """A cursor that uses a real dict as the base type for rows.
@@ -162,9 +161,7 @@ class RealDictCursor(DictCursorBase):
     def execute(self, query, vars=None, async=0):
         self.column_mapping = []
         self._query_executed = 1
-        return _cursor.execute(self, query, vars)
-        # following line has been modified as above; rdbhdb does not use async
-        #return _cursor.execute(self, query, vars, async)
+        return rdbhdb.Cursor.execute(self, query, vars)
 
     def _build_index(self):
         if self._query_executed == 1 and self.description:
@@ -172,7 +169,9 @@ class RealDictCursor(DictCursorBase):
                 self.column_mapping.append(item[0])
             self._query_executed = 0           
 
+
 class RealDictRow(dict):
+
     def __init__(self, cursor):
         dict.__init__(self)
         self._column_mapping = cursor.column_mapping
@@ -183,7 +182,7 @@ class RealDictRow(dict):
         return dict.__setitem__(self, name, value)
 
 
-class LoggingConnection(_connection):
+class LoggingConnection(rdbhdb.Connection):
     """A connection that logs all queries to a file or logger object."""
 
     def initialize(self, logobj):
@@ -217,29 +216,44 @@ class LoggingConnection(_connection):
     
     def _check(self):
         if not hasattr(self, '_logobj'):
-            raise rdbhdb.ProgrammingError(
-            #raise self.ProgrammingError(
-                "LoggingConnection object has not been initialize()d")
+            raise rdbhdb.ProgrammingError("LoggingConnection object has not been initialize()d")
             
     def cursor(self, name=None):
         self._check()
         if name is None:
-            return _connection.cursor(self, cursor_factory=LoggingCursor)
+            return rdbhdb.Connection.cursor(self, cursor_factory=LoggingCursor)
         else:
-            return _connection.cursor(self, name, cursor_factory=LoggingCursor)
+            return rdbhdb.Connection.cursor(self, name, cursor_factory=LoggingCursor)
 
-class LoggingCursor(_cursor):
+
+class AsyncLoggingConnection(LoggingConnection):
+
+    def cursor(self, name=None):
+        self._check()
+        if name is None:
+            return rdbhdb.Connection.cursor(self, cursor_factory=AsyncLoggingCursor)
+        else:
+            return rdbhdb.Connection.cursor(self, name, cursor_factory=AsyncLoggingCursor)
+
+
+
+class LoggingCursor(rdbhdb.Cursor):
     """A cursor that logs queries using its connection logging facilities."""
 
-    def execute(self, query, vars=None, async=0):
+    def _execute(self, query, vars=(), otherParms=(), addHdrs=()):
         try:
-            return _cursor.execute(self, query, vars)
-            # following line has been modified as above; rdbhdb does not use async
-            #return _cursor.execute(self, query, vars, async)
+            return rdbhdb.Cursor._execute(self, query, vars, otherParms, addHdrs)
         finally:
             self.conn.log(query, self)
-            # following line has been modified as above for rdbhdb - cursor parent is conn 
-            # self.connection.log(self.query, self)
+
+
+class AsyncLoggingCursor(rdbhdb.AsyncCursor, LoggingCursor):
+
+    def _execute(self, query, vars=(), otherParms=(), addHdrs=()):
+        try:
+            yield from rdbhdb.AsyncCursor._execute(self, query, vars, otherParms, addHdrs)
+        finally:
+            self.conn.log(query, self)
 
             
 class MinTimeLoggingConnection(LoggingConnection):
@@ -264,15 +278,14 @@ class MinTimeLoggingConnection(LoggingConnection):
     def cursor(self, name=None):
         self._check()
         if name is None:
-            return _connection.cursor(self, cursor_factory=MinTimeLoggingCursor)
+            return rdbhdb.Connection.cursor(self, cursor_factory=MinTimeLoggingCursor)
         else:
-            return _connection.cursor(self, name, cursor_factory=MinTimeLoggingCursor)
-    
+            return rdbhdb.Connection.cursor(self, name, cursor_factory=MinTimeLoggingCursor)
+
+
 class MinTimeLoggingCursor(LoggingCursor):
     """The cursor sub-class companion to MinTimeLoggingConnection."""
 
-    def execute(self, query, vars=None, async=0):
+    def execute(self, query, vars=None):
         self.timestamp = time.time()
         return LoggingCursor.execute(self, query, vars)
-        # following line has been modified as above; rdbhdb does not use async
-        #return _cursor.execute(self, query, vars, async)

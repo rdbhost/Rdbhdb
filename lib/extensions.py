@@ -21,12 +21,12 @@ try:
     from rdbhdb import rdbhdb
 except ImportError:
     import rdbhdb
-Cursor = rdbhdb.Cursor
 
-class DictCursor(Cursor):
+
+class DictCursor(rdbhdb.Cursor):
 
     def __init__(self, parent):
-        Cursor.__init__(self, parent)
+        rdbhdb.Cursor.__init__(self, parent)
 
     def fetchone(self):
         if not self._header:
@@ -72,3 +72,7 @@ class DictCursor(Cursor):
         if len(recs) == 0 and not self._complete:
             raise rdbhdb.Warning('rdbh11', 'Rdbhost recordset limit exceeded')
         return recs
+
+
+class AsyncDictCursor(rdbhdb.AsyncCursor, DictCursor):
+    """asynchronous dict cursor"""

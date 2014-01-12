@@ -44,7 +44,7 @@ except ImportError:
 
 import urllib3
 
-__version__ = '0.9.5'
+__version__ = '0.9.6'
 
 
 threadsafety = 2
@@ -54,9 +54,12 @@ apilevel = '2.0'
 MAX_UNCOMPRESSED_SIZE = 1024
 
 
-def connect(role, authcode, host='www.rdbhost.com'):
+def connect(role, authcode, host='www.rdbhost.com', asyncio=False):
     """Connect to the remote database. Return Connection object. """
-    return Connection(host, role, authcode)
+    if asyncio:
+        return AsyncConnection(host, role, authcode)
+    else:
+        return Connection(host, role, authcode)
 
 
 class DBAPITypeObject:
@@ -302,6 +305,7 @@ class Cursor(object):
         
     def close(self):
         """Close the cursor. Render it unable to act further. """
+        self.conn = None
         self = None
 
     def setoutputsize(self, size, o=None):
@@ -375,13 +379,9 @@ class Cursor(object):
         finally:
             self.conn._lock.release()
     
-    def _execute(self, query, args, otherparms, addhdrs):
-        """Private method to handle core of execute and executemany """
+    def _prep_query_parms(self, query, args, otherparms):
 
         parms = []
-        if not self.conn.role:
-            raise ProgrammingError('-', 'Connection closed before execute')
-
         if args:
 
             if isinstance(args, dict):
@@ -405,12 +405,23 @@ class Cursor(object):
                 assert type(ap) == type((1, 2)), type(ap)
                 parms.append(ap)
 
+        return query, parms
+
+    def _execute(self, query, args, otherparms, addhdrs):
+        """Private method to handle core of execute and executemany """
+
+        if not self.conn or not self.conn.role:
+            raise ProgrammingError('-', 'Connection closed before execute')
+
+        query, parms = self._prep_query_parms(query, args, otherparms)
+
         datareceived = stuff = False
 
         for _i in range(3):
-            txt = None
+            txt = ''
             try:
-                hdrs, txt = post_it(self.conn.role, self.conn.authcode, self.conn.host, 'json', query, parms, addhdrs)
+                hdrs, txt = self.get_data_from_server(self.conn.role, self.conn.authcode, self.conn.host,
+                                                      'json', query, parms, addhdrs)
                 self._rawbodysize = len(txt)
                 stuff = json.loads(txt)
                 if stuff['status'][0] != 'error' or stuff['error'][0] != 'rdb03':  # if query timeout, retry
@@ -432,10 +443,14 @@ class Cursor(object):
         if not datareceived:
             raise InterfaceError('rdbhdb09', 'Http connection failed -> received %s' % txt)
 
+        return self._process_results(stuff)
+
+    def _process_results(self, stuff):
+
         if stuff and 'status' in stuff and stuff['status'][0] == 'error':
             excName = stuff['status'][1]
             code, msg = stuff['error'][0], stuff['error'][1]
-            rdbex = sys.modules['rdbhdb.rdbhdb']
+            rdbex = sys.modules.get('rdbhdb.rdbhdb') or sys.modules.get('rdbhdb')
             exc = rdbex.__dict__[excName](code, msg)
             raise exc
 
@@ -569,8 +584,46 @@ class Cursor(object):
             return None
         stuff = {}
         return self._nextset(stuff)
- 
-           
+
+    def _prep_url_body_header(self, role, authcode, fmt, q, flds, addhdrs):
+        fields = {'q': q,
+                  'format': fmt,
+                  'authcode': authcode}
+        for f in flds:
+            fields[f[0]] = f[1]
+
+        body, content_type = urllib3.filepost.encode_multipart_formdata(fields or {})
+
+        headers = {'Accept-Encoding': 'gzip',
+                   'Content-Type': content_type,
+                   'Content-Length': str(len(body))}
+        for h in addhdrs:
+            headers[h[0]] = h[1]
+
+        if len(body) > MAX_UNCOMPRESSED_SIZE:
+            body = zlib.compress(body, 6)
+            headers['Content-Encoding'] = 'gzip'
+            headers['Content-Length'] = str(len(body))
+
+        url = '/db/' + role
+
+        return url, body, headers
+
+    def get_data_from_server(self, role, authcode, host, fmt, q, flds, addhdrs):
+        """post fields to url via POST, return result page. """
+
+        url, body, headers = self._prep_url_body_header(role, authcode, fmt, q, flds, addhdrs)
+
+        conn = urllib3.HTTPSConnectionPool(host, timeout=20)
+        r = conn.urlopen('POST', url, body=body, headers=headers, retries=5, assert_same_host=True)
+
+        # return headers and body
+        headers = r.headers
+        text = r.data.decode('utf-8')
+
+        return headers, text
+
+
 # sql rewriter, to add/modify OFFSET, and if apropos, modify LIMIT
 def modify_query(query, offset):
     q = r'SELECT * FROM (%s) AS "rdbhdbsqlrewriter" OFFSET %s' % (query, offset)
@@ -672,38 +725,168 @@ class AutoRefill(Cursor):
 
     description = property(_getdesc, None, None)
 
+try:
+    import asyncio
+    import aiohttp
+except ImportError as e:
+    asyncio = aiohttp = None
 
-def post_it_sync(role, authcode, host, fmt, q, flds, addhdrs):
-    """post fields to url via POST, return result page. """
 
-    fields = {'q': q,
-              'format': fmt,
-              'authcode': authcode}
-    for f in flds:
-        fields[f[0]] = f[1]
+class AsyncConnection(Connection):
+    """Async Connection.
+    works like rdbhdb.Connection, except provides async cursors
+    """
 
-    body, content_type = urllib3.filepost.encode_multipart_formdata(fields or {})
+    def __init__(self, host, role, authcode):
+        """init"""
+        Connection.__init__(self, host, role, authcode)
 
-    headers = {'Accept-Encoding': 'gzip',
-               'Content-Type': content_type}
-    for h in addhdrs:
-        headers[h[0]] = h[1]
+    def cursor(self, cursor_factory=None):
+        """Create cursor.  If autorefill is set to true, will create
+        an autorefilling cursor.  Otherwise not.  Passing a cursor class
+        as the 'cursor_factory' will create that type of cursor.
+        """
+        self._lock.acquire()
+        try:
+            if not cursor_factory:
+                cur = AsyncCursor(self)
+            else:
+                cur = cursor_factory(self)
+            if self.autorefill:
+                cur = AsyncAutoRefill(self, cur)
+        finally:
+            self._lock.release()
+        return cur
 
-    if len(body) > MAX_UNCOMPRESSED_SIZE:
-        body = zlib.compress(body, 6)
-        headers['Content-Encoding'] = 'gzip'
 
-    conn = urllib3.HTTPSConnectionPool(host, timeout=20)
+class AsyncCursor(Cursor):
+    """Async Cursor.
+    works like rdbhdb.Cursor, except uses asyncio.
+    """
 
-    r = conn.urlopen('POST', '/db/'+role, body=body, headers=headers, retries=5, assert_same_host=True)
+    def execute(self, query, args=()):
+        """Execute query with optional args """
+        assert type(args) in (type((1, 2)), type([]), type({}), type(None)), (type(args), args)
+        self.conn._lock.acquire()
+        try:
+            _r = yield from self._execute(query, args, (), ())
+            return _r
+        finally:
+            self.conn._lock.release()
 
-    # return headers and body
-    headers = r.headers
-    text = r.data.decode('utf-8')
+    def executemany(self, query, argslist):
+        """Execute query multiple times, once per arg set."""
+        self.conn._lock.acquire()
+        try:
+            for a in argslist:
+                _r = yield from self._execute(query, a, (), ())
+            self.rowcount = -1
+            return None
+        finally:
+            self.conn._lock.release()
 
-    return headers, text
+    def execute_deferred(self, query, args=()):
+        """Execute query with optional args, so that execution is deferred
+        until after method returns.
+        """
+        self.conn._lock.acquire()
+        try:
+            addparms = (('deferred', 'yes'), )
+            _r = yield from self._execute(query, args, addparms, ())
+            return _r
+        finally:
+            self.conn._lock.release()
 
-    
-post_it = post_it_sync
+    def _execute(self, query, args, otherparms, addhdrs):
+        """Private method to handle core of execute and executemany """
+
+        if not self.conn.role:
+            raise ProgrammingError('-', 'Connection closed before execute')
+
+        query, parms = self._prep_query_parms(query, args, otherparms)
+
+        datareceived = stuff = False
+
+        for _i in range(3):
+            txt = ''
+            try:
+                _r = yield from self.get_data_from_server(self.conn.role, self.conn.authcode, self.conn.host,
+                                                      'json', query, parms, addhdrs)
+                hdrs, txt = _r
+                self._rawbodysize = len(txt)
+                stuff = json.loads(txt)
+                if stuff['status'][0] != 'error' or stuff['error'][0] != 'rdb03':  # if query timeout, retry
+                    datareceived = True
+                    break
+                else:
+                    time.sleep(0.25)
+                    continue
+
+            except ValueError as e:
+                raise InterfaceError('??', 'JSON not converted [%s]' % txt)
+
+            except urllib3.exceptions.ConnectTimeoutError as e:
+                continue
+
+            except urllib3.exceptions.HTTPError as e:
+                break
+
+        if not datareceived:
+            raise InterfaceError('rdbhdb09', 'Http connection failed -> received %s' % txt)
+
+        return self._process_results(stuff)
+
+    def get_data_from_server(self, role, authcode, host, fmt, q, flds, addhdrs):
+        """post fields to url via POST, return result page. """
+
+        url, body, headers = self._prep_url_body_header(role, authcode, fmt, q, flds, addhdrs)
+
+        fullUrl = 'https://' + host + url
+
+        if headers.get('Content-Encoding') == 'gzip':
+            del headers['Content-Encoding']
+            headers['X-Content-Encoding'] = 'gzip'
+
+        response = yield from aiohttp.request('POST', fullUrl, data=body, headers=headers, timeout=20,
+                                              chunked=None, compress=None)
+        body = yield from response.read()
+
+        # return headers and body
+        headers = response.message
+        text = body.decode('utf-8')
+
+        return headers, text
+
+
+class AsyncAutoRefill(AutoRefill):
+
+    def execute(self, query, args=()):
+
+        self._args = args
+        self._query = query
+        yield from self._cursor.execute(query, args)
+
+    def executemany(self, query, argslist):
+        """Execute query multiple times, once per arg set."""
+
+        for a in argslist:
+            yield from self.execute(query, a)
+        self._cursor.rowcount = -1
+        return None
+
+    def _refill_records(self):
+        """Resubmit query to retrieve additional records beyond
+        the previous truncation point using SQL's OFFSET modifier.
+        """
+
+        self._offset += 100
+        query = modify_query(self._query, self._offset)
+        rows = self._cursor._records
+        self._cursor._records = []
+        yield from self._cursor.execute(query, self._args)
+        rows.extend(self._cursor._records)
+        self._cursor._records = rows
+
+
 
 ##
