@@ -231,7 +231,7 @@ This method currently does nothing.
 If the query was an aggregate query, with multiple statements, each statement
 will have a result set (even if that resultset includes no records).  This
 method discards the remainder of the current result set, and makes the next
-one current.  The values for discription and rowcount attributes change to
+one current.  The values for description and rowcount attributes change to
 those of the new result set.  The .fetch*() methods subsequently apply to the
 new result set. Returns None when there are no further result sets, otherwise
 True.

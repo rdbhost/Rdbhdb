@@ -2,6 +2,7 @@
 include *.txt
 recursive-include unittests-py2 *.*
 recursive-include unittests-py3 *.*
+recursive-include unittests-py3aio *.*
 recursive-include notunittests-py2 *.*
 recursive-include examples *.*
 recursive-include doc *.*
@@ -9,3 +10,4 @@ global-exclude accounts.py cursor.log
 global-exclude *.pyc *.pyo
 prune unittests-py2/__pycache__
 prune unittests-py3/__pycache__
+prune unittests-py3aio/__pycache__
