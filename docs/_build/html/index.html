@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to Rdbhdb’s documentation! &mdash; Rdbhdb 0.9.6 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9.6',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Rdbhdb 0.9.6 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="#">Rdbhdb 0.9.6 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-rdbhdb-s-documentation">
+<h1>Welcome to Rdbhdb&#8217;s documentation!<a class="headerlink" href="#welcome-to-rdbhdb-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<p>The Rdbhost.com service provides SQL databases accessible with the full power of SQL, directly from the
+browser, or from your remote Python app.</p>
+<p>The <strong>Rdbhdb</strong> module provides a Python DB API v2 interface for working with SQL databases hosted on
+Rdbhost.com.  As of version 0.9.6, it also supports asynchronous access under the Asyncio framework.</p>
+<p>For this module to be at all useful, you need an account on Rdbhost.com; accounts are free and easy to create,
+at the <a class="reference external" href="http://www.rdbhost.com">http://www.rdbhost.com</a> website.  Once logged into your account, visit the &#8216;Role Manager&#8217; page and cut
+and paste the super <em>role name</em> and <em>authcode</em>.</p>
+<p>The module works with Python 2.6 and up, or Python 3.1 and up.  The Asyncio features are only available for
+version 3.4 (and I assume 3.3 with Asyncio installed).</p>
+<p>Installation:</p>
+<div class="highlight-python"><pre>pip install rdbhdb</pre>
+</div>
+<p>Import the module, using version specific import syntax.</p>
+<p>Python 2:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">rdbhdb</span> <span class="kn">import</span> <span class="n">rdbhdb</span>
+<span class="kn">from</span> <span class="nn">rdbhdb</span> <span class="kn">import</span> <span class="n">extensions</span>
+</pre></div>
+</div>
+<p>Python 3:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">rdbhdb</span>
+<span class="kn">from</span> <span class="nn">rdbhdb</span> <span class="kn">import</span> <span class="n">extensions</span>
+</pre></div>
+</div>
+<p>The <em>extensions</em> submodule is optional, and provides dictionary style cursors.</p>
+<p>Open a connection with the <tt class="docutils literal"><span class="pre">connect</span></tt> function.  If you are using Asyncio, add a keyword parameter <tt class="docutils literal"><span class="pre">asyncio=True</span></tt>.</p>
+<div class="highlight-python"><pre>conn = rdbhdb.connect(&lt;role&gt;, &lt;authcode&gt;)
+conn = rdbhdb.connect(&lt;role&gt;, &lt;authcode&gt;, asyncio=True)</pre>
+</div>
+<p>Create a cursor from the connection.  If you want a dictionary cursor, provide a cursor factory, and if you are using
+Asyncio, use an async cursor factory:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">cur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+<span class="n">dictCur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">extensions</span><span class="o">.</span><span class="n">DictCursor</span><span class="p">)</span>
+<span class="n">asyncCur</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">(</span><span class="n">cursor_factory</span><span class="o">=</span><span class="n">extensions</span><span class="o">.</span><span class="n">AsyncDictCursor</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To submit a query to the server, use one of the <tt class="docutils literal"><span class="pre">.execute</span></tt> methods:</p>
+<div class="highlight-python"><pre>cur.execute(&lt;sql&gt;, &lt;params&gt;)
+cur.executemany(&lt;sql&gt;, &lt;set of params&gt;)</pre>
+</div>
+<p>The <em>sql</em> can be one SQL statement, or an aggregate of multiple statements joined with &#8216;;&#8217;.  Params can be a list or
+a dictionary, depending on value of .paramstyle.  For <em>.executemany()</em>, params is a list of param sets, each of which
+is a dictionary or list.</p>
+<p>With Asyncio, these methods are coroutines, and call them with <tt class="docutils literal"><span class="pre">yield</span> <span class="pre">from</span></tt>:</p>
+<div class="highlight-python"><pre>yield from cur.execute(&lt;sql&gt;, &lt;params&gt;)</pre>
+</div>
+<p>If the query will yield more than 100 records, and you do not provide an explicit <em>LIMIT</em> clause in the query,
+the <em>execute</em> call will raise an exception.  With an explicit <em>LIMIT</em> clause, you can retrieve up to 1000 records.</p>
+<p>After the execute method returns, the data is available on the cursor using the <em>.fetch</em> methods:</p>
+<div class="highlight-python"><pre>row = cur.fetchone()
+rows = cur.fetchmany(&lt;ct&gt;)
+rows = cur.fetchall()</pre>
+</div>
+<p>Each of these can be called repeatedly, until all data is received.  These are plain methods, even under Asyncio, as
+the data is on the client already when the <em>.execute</em> completes, and there is no further fetching wait.</p>
+<p>If the <em>sql</em> was multiple statements, then each will have its own set of results, and <tt class="docutils literal"><span class="pre">.nextset</span></tt> will advance
+to the next. Each statement will have a result set, possibly empty.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&#39;SELECT 1 AS one; SELECT 2 AS two;&#39;</span><span class="p">,)</span>
+<span class="n">first</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>    <span class="c"># ({&#39;one&#39;: 1}, )</span>
+<span class="n">cur</span><span class="o">.</span><span class="n">nextset</span><span class="p">()</span>             <span class="c"># True</span>
+<span class="n">second</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>   <span class="c"># ({&#39;two&#39;: 2}, )</span>
+<span class="n">cur</span><span class="o">.</span><span class="n">nextset</span><span class="p">()</span>             <span class="c"># None</span>
+</pre></div>
+</div>
+<p>String data provided as parameters can be <em>unicode</em> or <em>&#8216;utf-8&#8217;</em> encoded strings.  Data that is to be handled as binary
+(no decoding) should be <tt class="docutils literal"><span class="pre">bytes</span></tt> type in Python 3 or <tt class="docutils literal"><span class="pre">buffer</span></tt> in Python 2.</p>
+<p>Some attributes of the cursor, required by the API, are:</p>
+<div class="highlight-python"><pre>.description = tuple of tuples, one tuple for each field/column; each field-tuple is (name, type_code, None, None, None, None, None) type_code is the PostgreSQL field type code for the field.
+.rowcount = how many rows were retrieved by cursor.
+.array_size = default count for .fetchmany()</pre>
+</div>
+<p>Some additional methods of the cursor are:</p>
+<div class="highlight-python"><pre>.close() - closes cursor. further use raises exception.</pre>
+</div>
+<p>The connection objects have the following methods:</p>
+<div class="highlight-python"><pre>.close() - closes connection. further use raises exception.
+.commit() - a noop, as each request is automatically wrapped in a transaction, with closing commit.</pre>
+</div>
+<p>The API defines this, but has no meaning for the Rdbhost implementaion.:</p>
+<div class="highlight-python"><pre>.rollback() - not implemented, so use will raise exception.</pre>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to Rdbhdb&#8217;s documentation!</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="#">Rdbhdb 0.9.6 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, David Keeney.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

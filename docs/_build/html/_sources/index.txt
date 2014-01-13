@@ -102,9 +102,7 @@ String data provided as parameters can be *unicode* or *'utf-8'* encoded strings
 
 Some attributes of the cursor, required by the API, are::
 
-    .description = tuple of tuples, one tuple for each field/column
-        each field-tuple is (name, type_code, None, None, None, None, None)
-        type_code is the PostgreSQL field type code for the field.
+    .description = tuple of tuples, one tuple for each field/column; each field-tuple is (name, type_code, None, None, None, None, None) type_code is the PostgreSQL field type code for the field.
     .rowcount = how many rows were retrieved by cursor.
     .array_size = default count for .fetchmany()
 
