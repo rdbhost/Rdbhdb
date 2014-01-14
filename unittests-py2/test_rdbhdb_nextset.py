@@ -8,7 +8,7 @@ import time
 import os, sys
 import accounts
 
-sys.path.insert(0, '..')
+sys.path.insert(0, '..\lib')
 
 from rdbhdb import rdbhdb
 

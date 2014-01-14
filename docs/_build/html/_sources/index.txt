@@ -21,7 +21,7 @@ For this module to be at all useful, you need an account on Rdbhost.com; account
 at the http://www.rdbhost.com website.  Once logged into your account, visit the 'Role Manager' page and cut
 and paste the super *role name* and *authcode*.
 
-The module works with Python 2.6 and up, or Python 3.1 and up.  The Asyncio features are only available for
+The module works with Python 2.5 and up, or Python 3.1 and up.  The Asyncio features are only available for
 version 3.4 (and I assume 3.3 with Asyncio installed).
 
 
@@ -75,6 +75,13 @@ With Asyncio, these methods are coroutines, and call them with ``yield from``::
 
     yield from cur.execute(<sql>, <params>)
 
+You can, alternatively, use callbacks by creating a Future and attaching the callback::
+
+    task = asyncio.Task(cur.execute(<sql>, <params<))
+    task.add_done_callback(when_done)
+
+    yield from async.wait([task])
+
 If the query will yield more than 100 records, and you do not provide an explicit *LIMIT* clause in the query,
 the *execute* call will raise an exception.  With an explicit *LIMIT* clause, you can retrieve up to 1000 records.
 
@@ -90,6 +97,7 @@ the data is on the client already when the *.execute* completes, and there is no
 If the *sql* was multiple statements, then each will have its own set of results, and ``.nextset`` will advance
 to the next. Each statement will have a result set, possibly empty.
 ::
+
     cur.execute('SELECT 1 AS one; SELECT 2 AS two;',)
     first = cur.fetchall()    # ({'one': 1}, )
     cur.nextset()             # True
@@ -102,7 +110,9 @@ String data provided as parameters can be *unicode* or *'utf-8'* encoded strings
 
 Some attributes of the cursor, required by the API, are::
 
-    .description = tuple of tuples, one tuple for each field/column; each field-tuple is (name, type_code, None, None, None, None, None) type_code is the PostgreSQL field type code for the field.
+    .description = tuple of tuples, one tuple for each field/column
+        each field-tuple is (name, type_code, None, None, None, None, None)
+        type_code is the PostgreSQL field type code for the field.
     .rowcount = how many rows were retrieved by cursor.
     .array_size = default count for .fetchmany()
 
@@ -124,10 +134,4 @@ The API defines this, but has no meaning for the Rdbhost implementaion.::
 
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 

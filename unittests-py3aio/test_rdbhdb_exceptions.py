@@ -9,7 +9,7 @@ import asyncio
 
 sys.path.insert(0, '..\lib')
 
-import rdbhdb
+from rdbhdb import rdbhdb
 
 need_version = '0.9.6'
 

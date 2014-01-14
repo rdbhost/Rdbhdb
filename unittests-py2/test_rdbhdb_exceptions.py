@@ -5,7 +5,7 @@ import accounts
 import unittest
 import sys, os
 
-sys.path.insert(0, '..')
+sys.path.insert(0, '..\lib')
 
 from rdbhdb import rdbhdb
 

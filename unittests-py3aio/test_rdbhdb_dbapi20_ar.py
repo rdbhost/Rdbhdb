@@ -5,12 +5,12 @@ import unittest
 import sys
 import accounts
 
-import rdbhdb
+from rdbhdb import rdbhdb
 import asyncio
 
 sys.path.insert(0, '..\lib')
 
-import rdbhdb
+from rdbhdb import rdbhdb
 
 def asyncio_meth_ruc(f):
     def asy(self):

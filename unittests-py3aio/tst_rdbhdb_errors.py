@@ -7,7 +7,7 @@ import asyncio
 
 sys.path.insert(0, '..\lib')
 
-import rdbhdb
+from rdbhdb import rdbhdb
 import extras
 
 def asyncio_meth_ruc(f):

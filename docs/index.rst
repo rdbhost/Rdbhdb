@@ -97,6 +97,7 @@ the data is on the client already when the *.execute* completes, and there is no
 If the *sql* was multiple statements, then each will have its own set of results, and ``.nextset`` will advance
 to the next. Each statement will have a result set, possibly empty.
 ::
+
     cur.execute('SELECT 1 AS one; SELECT 2 AS two;',)
     first = cur.fetchall()    # ({'one': 1}, )
     cur.nextset()             # True
