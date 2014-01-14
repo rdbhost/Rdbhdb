@@ -1,4 +1,3 @@
-
 .. Rdbhdb documentation master file, created by
    sphinx-quickstart on Mon Jan 13 16:34:12 2014.
    You can adapt this file completely to your liking, but it should at least
@@ -30,17 +29,9 @@ Installation::
     pip install rdbhdb
 
 
-Import the module, using version specific import syntax.
-
-Python 2::
+Import the module::
 
     from rdbhdb import rdbhdb
-    from rdbhdb import extensions
-
-
-Python 3::
-
-    import rdbhdb
     from rdbhdb import extensions
 
 
