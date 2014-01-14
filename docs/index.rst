@@ -126,10 +126,4 @@ The API defines this, but has no meaning for the Rdbhost implementaion.::
 
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
