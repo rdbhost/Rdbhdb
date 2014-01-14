@@ -21,7 +21,7 @@ For this module to be at all useful, you need an account on Rdbhost.com; account
 at the http://www.rdbhost.com website.  Once logged into your account, visit the 'Role Manager' page and cut
 and paste the super *role name* and *authcode*.
 
-The module works with Python 2.6 and up, or Python 3.1 and up.  The Asyncio features are only available for
+The module works with Python 2.5 and up, or Python 3.1 and up.  The Asyncio features are only available for
 version 3.4 (and I assume 3.3 with Asyncio installed).
 
 
@@ -74,6 +74,13 @@ is a dictionary or list.
 With Asyncio, these methods are coroutines, and call them with ``yield from``::
 
     yield from cur.execute(<sql>, <params>)
+
+You can, alternatively, use callbacks by creating a Future and attaching the callback::
+
+    task = asyncio.Task(cur.execute(<sql>, <params<))
+    task.add_done_callback(when_done)
+
+    yield from async.wait([task])
 
 If the query will yield more than 100 records, and you do not provide an explicit *LIMIT* clause in the query,
 the *execute* call will raise an exception.  With an explicit *LIMIT* clause, you can retrieve up to 1000 records.
