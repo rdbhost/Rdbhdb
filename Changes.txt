@@ -2,6 +2,15 @@
 
 Changes to Rdbhdb module
 
+0.9.7
+
+Fixed serious problem in 0.9.6, in that Asyncio code,
+  using 'yield from', broke module for pre py3.3 installs.
+Now imports Asyncio code from own modules, so compile
+  failures are isolated, and don't block functionality in earlier
+  versions.
+
+
 0.9.6
 
 Added asyncio-style coroutine methods
