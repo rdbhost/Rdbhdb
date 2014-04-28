@@ -1,0 +1,8 @@
+CREATE TABLE extras_cities (name varchar(80));
+insert into extras_cities values ('Atlanta')
+insert into extras_cities values ('Boston')
+insert into extras_cities values ('Chicago')
+insert into extras_cities values ('Houston')
+insert into extras_cities values ('Madison')
+insert into extras_cities values ('Memphis')
+select name from extras_cities

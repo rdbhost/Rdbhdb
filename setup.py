@@ -6,7 +6,7 @@ from distutils.core import setup
 
 
 setup(name="rdbhdb",
-      version='0.9.7',
+      version='0.9.8',
       description="DB API module for accessing hosted databases at www.rdbhost.com",
       author='David Keeney, Kris Sundaram',
       author_email='dkeeney@rdbhost.com, sundram@hotmail.com',
@@ -23,7 +23,7 @@ setup(name="rdbhdb",
       to access rdbhost.com hosted databases from your application.
       Uses gzip compression to conserve bandwidth and time. Can
       be used on Google Appengine or any other Python platform.
-      Starting with version 0.9.6, supports asyncio.
+      Starting with version 0.9.6, supports Asyncio.
       """,
       classifiers=[
       'Development Status :: 4 - Beta',

@@ -2,13 +2,33 @@
 
 Changes to Rdbhdb module
 
+0.9.8
+
+Removed locking, as locking was seriously interfering with
+fast parallel action.
+
+All connection attributes are now one in tuple, and reading
+and writing that tuple are both atomic operations, so locking
+is superfluous.  It was always a bit paranoid, but now it is
+pointless, and gone.
+
+Added tests to verify concurrent operation. Tests with asyncio
+for the py3aio suite, and with threading for the others.
+
+asyncio code is now 'compiled' from strings, with compile errors
+trapped, so does not generate syntax-error noise installing on 2.x.
+
+named parameter strings in queries can be either '%(name)s' or
+'%(name)'.  The latter form matches the jQuery library.
+
+
 0.9.7
 
 Fixed serious problem in 0.9.6, in that Asyncio code,
-  using 'yield from', broke module for pre py3.3 installs.
+using 'yield from', broke module for pre py3.3 installs.
 Now imports Asyncio code from own modules, so compile
-  failures are isolated, and don't block functionality in earlier
-  versions.
+failures are isolated, and don't block functionality in earlier
+versions.
 
 
 0.9.6
