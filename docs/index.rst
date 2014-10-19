@@ -71,6 +71,11 @@ The *sql* can be one SQL statement, or an aggregate of multiple statements joine
 a dictionary, depending on value of .paramstyle.  For *.executemany()*, params is a list of param sets, each of which
 is a dictionary or list.
 
+Examples::
+
+    cur.execute('SELECT %s+%s', (1, 2))
+    cur.execute('SELECT %(one)s + %(two)s', {'one': 1, 'two': 2})
+
 With Asyncio, these methods are coroutines, and call them with ``yield from``::
 
     yield from cur.execute(<sql>, <params>)
@@ -96,6 +101,7 @@ the data is on the client already when the *.execute* completes, and there is no
 
 If the *sql* was multiple statements, then each will have its own set of results, and ``.nextset`` will advance
 to the next. Each statement will have a result set, possibly empty.
+
 ::
 
     cur.execute('SELECT 1 AS one; SELECT 2 AS two;',)
