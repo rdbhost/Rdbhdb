@@ -21,7 +21,7 @@ def asyncio_ruc(f):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(f())
 
-need_version = '0.9.6'
+need_version = '0.10.0'
 
 
 class test_Rdbhdb_sql(unittest.TestCase):
@@ -181,5 +181,16 @@ class test_Rdbhdb_sql(unittest.TestCase):
         yield from self._fetch(q, 1)
 
         
+class test_Rdbhdb_sql_ws(test_Rdbhdb_sql):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'asyncio': True,
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_sql.HOST,
+        'useWebsocket': True
+    }
+
+
 if __name__ == '__main__':
     unittest.main()

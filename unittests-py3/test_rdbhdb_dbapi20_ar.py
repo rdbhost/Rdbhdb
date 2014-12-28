@@ -2,17 +2,23 @@
 
 import dbapi20
 import unittest
-import sys
+import sys, os
 import accounts
 
 from rdbhdb import rdbhdb
 
 class test_Rdbhdb_ar(dbapi20.DatabaseAPI20Test):
     driver = rdbhdb
+
+    # get choice of server from environment
+    HOST = os.environ.get('RDBHOST_TEST', "dev.rdbhost.com").strip("'")
+
     connect_args = ()
     connect_kw_args = {
         'role': accounts.demo['role'],
-        'authcode': accounts.demo['authcode'] }
+        'authcode': accounts.demo['authcode'],
+        'host': HOST
+        }
 
     lower_func = 'lower' # For stored procedure test
 
@@ -43,6 +49,17 @@ class test_Rdbhdb_ar(dbapi20.DatabaseAPI20Test):
     def test_nextset(self): pass
     def test_setoutputsize(self): pass
     def test_ExceptionsAsConnectionAttributes(self): pass  # override
+
+
+class test_Rdbhdb_ar_ws(test_Rdbhdb_ar):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_ar.HOST,
+        'useWebsocket': True
+    }
+
 
 if __name__ == '__main__':
     unittest.main()

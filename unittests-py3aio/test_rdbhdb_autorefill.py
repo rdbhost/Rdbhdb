@@ -20,7 +20,7 @@ def asyncio_ruc(f):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(f())
 
-need_version = '0.9.6'
+need_version = '0.10.0'
 
 class test_Rdbhdb_autorefill(unittest.TestCase):
 
@@ -71,7 +71,7 @@ class test_Rdbhdb_autorefill(unittest.TestCase):
         yield from self._tearDown()
 
     def _tearDown(self):
-        # self.assert_(False, 1)
+        # self.assertTrue(False, 1)
         con = self._connect()
         try:
             cur = con.cursor()
@@ -90,7 +90,7 @@ class test_Rdbhdb_autorefill(unittest.TestCase):
     def setUp(self):
         # Call superclass setUp In case this does something in the
         # future
-        # self.assert_(False, 2)
+        # self.assertTrue(False, 2)
         #yield from []
         #yield from self._tearDown()
         try:
@@ -356,6 +356,17 @@ class test_Rdbhdb_autorefill(unittest.TestCase):
         finally:
             con.close()
 
-            
+
+class test_Rdbhdb_autorefill_ws(test_Rdbhdb_autorefill):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'asyncio': True,
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_autorefill.HOST,
+        'useWebsocket': True
+    }
+
+
 if __name__ == '__main__':
     unittest.main()

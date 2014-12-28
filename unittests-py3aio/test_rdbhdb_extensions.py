@@ -19,7 +19,7 @@ def asyncio_ruc(f):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(f())
 
-need_version = '0.9.6'
+need_version = '0.10.0'
 
 
 class test_Rdbhdb_extensions(unittest.TestCase):
@@ -35,7 +35,8 @@ class test_Rdbhdb_extensions(unittest.TestCase):
         'asyncio': True,
         'role': accounts.demo['role'],
         'authcode': accounts.demo['authcode'],
-        'host': HOST }
+        'host': HOST
+    }
 
     lower_func = 'lower' # For stored procedure test
 
@@ -287,7 +288,18 @@ class test_Rdbhdb_extensions(unittest.TestCase):
         finally:
             con.close()
 
-        
+
+class test_Rdbhdb_extensions_ws(test_Rdbhdb_extensions):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'asyncio': True,
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_extensions.HOST,
+        'useWebsocket': True
+    }
+
+
 if __name__ == '__main__':
     unittest.main()
     

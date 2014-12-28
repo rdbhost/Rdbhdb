@@ -80,7 +80,8 @@ class Deferred(BaseTest):
             ##
         finally:
             con.close()
-    
+
+
 class Https_ws(Https):
 
     connect_kw_args = {
@@ -89,6 +90,7 @@ class Https_ws(Https):
         'host': Https.HOST,
         'useWebsocket': True
     }
+
 
 class Deferred_ws(Deferred):
 

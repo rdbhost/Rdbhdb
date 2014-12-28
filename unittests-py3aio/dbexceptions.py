@@ -44,7 +44,7 @@ def asyncio_ruc_stat(f, *args):
     g.next()
     _r = yield from g;
 
-need_version = '0.9.6'
+need_version = '0.10.0'
 
 # $Log: dbapi20.py, v $
 # Revision 1.10  2003/10/09 03:14:14  zenzen
@@ -182,7 +182,7 @@ class DatabaseExcTest(unittest.TestCase):
         q = "CREATE DATABASE testdb"
         try:
             yield from cur.execute(q)
-            self.assert_(False)
+            self.assertTrue(False)
         except self.driver.InternalError:
             pass
 
@@ -192,7 +192,7 @@ class DatabaseExcTest(unittest.TestCase):
         q = "GRANT ALL ON %sweather to s000043" % self.table_prefix
         try:
             yield from cur.execute(q)
-            self.assert_(False)
+            self.assertTrue(False)
         except self.driver.ProgrammingError:
             pass
 
@@ -205,7 +205,7 @@ class DatabaseExcTest(unittest.TestCase):
         con.close()
         try:
             yield from cur.execute(q)
-            self.assert_(False)
+            self.assertTrue(False)
         except self.driver.ProgrammingError:
             pass
 
@@ -231,7 +231,7 @@ class DatabaseExcTest(unittest.TestCase):
         q="INSERT INTO %sweather VALUE ('San Francisco', 46, 50, 0.25, '1994-11-27');" % self.table_prefix
         try:
             yield from cur.execute(q)
-            self.assert_(False)
+            self.assertTrue(False)
         except self.driver.ProgrammingError:
             pass
 
@@ -312,7 +312,7 @@ class DatabaseExcTest(unittest.TestCase):
         q2="DROP TABLE xyz;"
         try:
             yield from cur.execute(q2)
-            self.assert_(False)
+            self.assertTrue(False)
         except self.driver.ProgrammingError:
             pass
 
@@ -324,7 +324,7 @@ class DatabaseExcTest(unittest.TestCase):
         q="CREATE TABLE %sweather (city varchar(80);" % self.table_prefix
         try:
             yield from cur.execute(q)
-            self.assert_(False)
+            self.assertTrue(False)
         except self.driver.ProgrammingError:
             pass
 
@@ -336,7 +336,7 @@ class DatabaseExcTest(unittest.TestCase):
         q="COPY %sweather TO 'xxx';" % self.table_prefix
         try:
             yield from cur.execute(q)
-            self.assert_(False)
+            self.assertTrue(False)
         except self.driver.ProgrammingError:
             pass
 
@@ -348,7 +348,7 @@ class DatabaseExcTest(unittest.TestCase):
         q="COPY %sweather FROM 'xxx';" % self.table_prefix
         try:
             yield from cur.execute(q)
-            self.assert_(False)
+            self.assertTrue(False)
         except self.driver.ProgrammingError:
             pass
 

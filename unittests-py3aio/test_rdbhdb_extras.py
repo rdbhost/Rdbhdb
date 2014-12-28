@@ -20,7 +20,7 @@ def asyncio_ruc(f):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(f())
 
-need_version = '0.9.6'
+need_version = '0.10.0'
 
 
 class test_Rdbhdb_extras(unittest.TestCase):
@@ -313,7 +313,19 @@ class test_Rdbhdb_extras(unittest.TestCase):
                 self.assertEqual(rows[i], self.samples[i],'incorrect data retrieved or inserted')
         finally:
             logcon.close()
-            
+
+
+class test_Rdbhdb_extras_ws(test_Rdbhdb_extras):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'asyncio': True,
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_extras.HOST,
+        'useWebsocket': True
+    }
+
+
 if __name__ == '__main__':
     unittest.main()
     

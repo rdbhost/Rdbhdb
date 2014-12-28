@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
-import sys
+import sys, os
 import accounts
 import asyncio
 
@@ -24,11 +24,15 @@ class test_Rdbhdb_cb(unittest.TestCase):
 
     driver = rdbhdb
 
+    # get choice of server from environment
+    HOST = os.environ.get('RDBHOST_TEST', "dev.rdbhost.com").strip("'")
+
     connect_args = ()
     connect_kw_args = {
         'asyncio': True,
         'role': accounts.demo['role'],
-        'authcode': accounts.demo['authcode']}
+        'authcode': accounts.demo['authcode'],
+        'host': HOST}
 
     table_prefix = 'cb_' # If you need to specify a prefix for tables
 
@@ -89,8 +93,7 @@ class test_Rdbhdb_cb(unittest.TestCase):
             def when_done(itm):
                 nonlocal flag
                 data = cur.fetchall()
-                self.assert_(len(data))
-                #self.assert_(False)
+                self.assertTrue(len(data))
                 flag = True
 
             try:
@@ -109,10 +112,20 @@ class test_Rdbhdb_cb(unittest.TestCase):
             _tcb(self)
 
         finally:
-            self.assert_(flag == True)
+            self.assertTrue(flag == True)
             con.close()
 
             
+class test_Rdbhdb_cb_ws(test_Rdbhdb_cb):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'asyncio': True,
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_cb.HOST,
+        'useWebsocket': True
+    }
+
 if __name__ == '__main__':
     unittest.main()
     

@@ -23,10 +23,10 @@ def asyncio_ruc(f):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(f())
 
-need_version = '0.9.6'
+need_version = '0.10.0'
 
 
-class test_nextset(unittest.TestCase):
+class test_Rdbhdb_nextset(unittest.TestCase):
 
     driver = rdbhdb
 
@@ -42,7 +42,7 @@ class test_nextset(unittest.TestCase):
 
     lower_func = 'lower' # For stored procedure test
 
-    table_prefix = 'extras_' # If you need to specify a prefix for tables
+    table_prefix = 'nextset_' # If you need to specify a prefix for tables
 
     ddl1 = '''CREATE TABLE %scities (name varchar(80));''' % table_prefix
     ddl2 = '''CREATE TABLE %sstates (name varchar(80));''' % table_prefix
@@ -225,7 +225,18 @@ class test_nextset(unittest.TestCase):
 
         finally:
             con.close()
-            
-            
+
+
+class test_Rdbhdb_nextset_ws(test_Rdbhdb_nextset):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'asyncio': True,
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_nextset.HOST,
+        'useWebsocket': True
+    }
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -3,16 +3,22 @@
 import accounts
 import dbapi20
 import unittest
-import sys
+import sys, os
 
 from rdbhdb import rdbhdb
 
 class test_Rdbhdb_dbapi20_ar(dbapi20.DatabaseAPI20Test):
     driver = rdbhdb
+
+    # get choice of server from environment
+    HOST = os.environ.get('RDBHOST_TEST', "dev.rdbhost.com").strip("'")
+
     connect_args = ()
     connect_kw_args = {
         'role': accounts.demo['role'],
-        'authcode': accounts.demo['authcode'] }
+        'authcode': accounts.demo['authcode'],
+        'host': HOST
+    }
 
     lower_func = 'lower' # For stored procedure test
 

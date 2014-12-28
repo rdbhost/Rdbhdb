@@ -94,5 +94,27 @@ class Deferred(BaseTest):
             con.close()
     
             
+class Https_ws(Https):
+
+    connect_kw_args = {
+        'asyncio': True,
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': Https.HOST,
+        'useWebsocket': True
+    }
+
+
+class Deferred_ws(Deferred):
+
+    connect_kw_args = {
+        'asyncio': True,
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': Deferred.HOST,
+        'useWebsocket': True
+    }
+
+
 if __name__ == '__main__':
     unittest.main()

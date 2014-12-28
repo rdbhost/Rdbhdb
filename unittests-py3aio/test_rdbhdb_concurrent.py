@@ -20,7 +20,7 @@ def asyncio_ruc(f):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(f())
 
-need_version = '0.9.5'
+need_version = '0.10.0'
 
 class test_Rdbhdb_concurrentRequest(unittest.TestCase):
 
@@ -90,7 +90,7 @@ class test_Rdbhdb_concurrentRequest(unittest.TestCase):
         """Verify correct API module version in use."""
         lVersion = rdbhdb.__version__.split('.')
         nVersion = need_version.split('.')
-        self.assert_(lVersion >= nVersion, rdbhdb.__version__)
+        self.assertTrue(lVersion >= nVersion, rdbhdb.__version__)
 
     @asyncio_meth_ruc
     def test_Twin(self):
@@ -104,19 +104,29 @@ class test_Rdbhdb_concurrentRequest(unittest.TestCase):
             coros.append(cur1.execute('SELECT 2'))
             _d, _r = yield from asyncio.wait(coros, timeout=10, return_when=asyncio.ALL_COMPLETED)
 
-            self.assert_(len(_r) == 0, str(_r))
+            self.assertTrue(len(_r) == 0, str(_r))
 
             row0 = cur0.fetchone()
-            self.assert_(row0[0] == 1)
+            self.assertTrue(row0[0] == 1)
 
             row1 = cur1.fetchone()
-            self.assert_(row1[0] == 2)
+            self.assertTrue(row1[0] == 2)
             pass
 
         finally:
             con.close()
 
 
-            
+class test_Rdbhdb_concurrentRequest_ws(test_Rdbhdb_concurrentRequest):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'asyncio': True,
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_concurrentRequest.HOST,
+        'useWebsocket': True
+    }
+
+
 if __name__ == '__main__':
     unittest.main()

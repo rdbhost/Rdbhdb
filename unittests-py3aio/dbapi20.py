@@ -32,7 +32,7 @@ def asyncio_ruc(f, *args):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(f(*args))
 
-need_version = '0.9.6'
+need_version = '0.10.0'
 
 
 # $Log: dbapi20.py, v $

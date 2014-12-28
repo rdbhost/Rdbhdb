@@ -20,7 +20,7 @@ def asyncio_ruc(f):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(f())
 
-need_version = '0.9.5'
+need_version = '0.10.0'
 
 class test_Rdbhdb_compressedRequest(unittest.TestCase):
 
@@ -90,7 +90,7 @@ class test_Rdbhdb_compressedRequest(unittest.TestCase):
         """Verify correct API module version in use."""
         lVersion = rdbhdb.__version__.split('.')
         nVersion = need_version.split('.')
-        self.assert_(lVersion >= nVersion, rdbhdb.__version__)
+        self.assertTrue(lVersion >= nVersion, rdbhdb.__version__)
 
     def test_Compressed(self):
         con = self._connect()
@@ -117,8 +117,8 @@ class test_Rdbhdb_compressedRequest(unittest.TestCase):
                 args.extend([i, stuff])
             q = '\n'.join(qs)
 
-            self.assert_(len(q)>150, len(q))
-            self.assert_(sum([len(a) for a in args if type(a) == type('')]) > 2000)
+            self.assertTrue(len(q)>150, len(q))
+            self.assertTrue(sum([len(a) for a in args if type(a) == type('')]) > 2000)
             yield from cur.execute(q, args)
             self.assertRaises(self.driver.Error, cur.fetchone)
 
@@ -131,6 +131,17 @@ class test_Rdbhdb_compressedRequest(unittest.TestCase):
             con.close()
 
 
-            
+class test_Rdbhdb_compressedRequest_ws(test_Rdbhdb_compressedRequest):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'asyncio': True,
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_compressedRequest.HOST,
+        'useWebsocket': True
+    }
+
+
+
 if __name__ == '__main__':
     unittest.main()

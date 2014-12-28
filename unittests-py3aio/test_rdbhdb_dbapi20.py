@@ -19,10 +19,10 @@ def asyncio_ruc(f):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(f())
 
-need_version = '0.9.6'
+need_version = '0.10.0'
 
 
-class test_Rdbhdb(dbapi20.DatabaseAPI20Test):
+class test_Rdbhdb_dbapi20(dbapi20.DatabaseAPI20Test):
     driver = rdbhdb
 
     # get choice of server from environment
@@ -65,6 +65,17 @@ class test_Rdbhdb(dbapi20.DatabaseAPI20Test):
 
     def test_nextset(self): 
         """tested in another module. """
+
+
+class test_Rdbhdb_dbapi20_ws(test_Rdbhdb_dbapi20):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'asyncio': True,
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_dbapi20.HOST,
+        'useWebsocket': True
+    }
 
 if __name__ == '__main__':
     unittest.main()

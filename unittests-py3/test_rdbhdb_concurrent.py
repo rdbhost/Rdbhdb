@@ -11,7 +11,7 @@ sys.path.insert(0, '..\lib')
 
 from rdbhdb import rdbhdb
 
-need_version = '0.9.5'
+need_version = '0.10.0'
 
 class test_Rdbhdb_concurrentRequest(unittest.TestCase):
 

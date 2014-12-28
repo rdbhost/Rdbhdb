@@ -21,7 +21,7 @@ def asyncio_ruc(f):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(f())
 
-need_version = '0.9.6'
+need_version = '0.10.0'
 
 class test_Rdbhdb_fileupload(unittest.TestCase):
 
@@ -129,5 +129,16 @@ class test_Rdbhdb_fileupload(unittest.TestCase):
             con.close()
 
             
+class test_Rdbhdb_fileupload_ws(test_Rdbhdb_fileupload):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'asyncio': True,
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_fileupload.HOST,
+        'useWebsocket': True
+    }
+
+
 if __name__ == '__main__':
     unittest.main()
