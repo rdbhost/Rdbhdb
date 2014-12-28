@@ -33,7 +33,8 @@ class test_Rdbhdb_compressedRequest(unittest.TestCase):
     connect_kw_args = {
         'role': accounts.demo['role'],
         'authcode': accounts.demo['authcode'],
-        'host': HOST}
+        'host': HOST,
+        'asyncio': True}
 
     table_prefix = 'compressed_' # If you need to specify a prefix for tables
 

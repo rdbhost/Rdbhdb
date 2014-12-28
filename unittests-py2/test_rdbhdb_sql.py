@@ -10,7 +10,7 @@ sys.path.insert(0, '..\lib')
 
 from rdbhdb import rdbhdb
 
-need_version = '0.9.3'
+need_version = '0.10.0'
 
 class test_Rdbhdb_sql(unittest.TestCase):
 
@@ -73,7 +73,7 @@ class test_Rdbhdb_sql(unittest.TestCase):
         except AttributeError:
             self.fail("No connect method found in self.driver module")
 
-    def _fetch(self, q,ct=50):
+    def _fetch(self, q, ct=50):
         con = self._connect()
         con.autorefill = True
         try:
@@ -85,6 +85,16 @@ class test_Rdbhdb_sql(unittest.TestCase):
             self.assertEqual(len(results), ct,
                 'fetchmany wanted %s records, got %s'%(ct, len(results))
                 )
+        finally:
+            con.close()
+
+    def _fetchOne(self, q, args=()):
+        con = self._connect()
+        try:
+            cur = con.cursor()
+            cur.execute(q, args)
+            results = cur.fetchone()
+            return results
         finally:
             con.close()
 
@@ -163,6 +173,37 @@ class test_Rdbhdb_sql(unittest.TestCase):
             """ % (self.table_prefix)
         self._fetch(q, 1)
 
-        
+    def test10_arg_lim(self):
+        """Test -- commenting w/o newline"""
+        q = """SELECT %s;
+            """
+        r = self._fetchOne(q, (13,))
+        self.assert_(r[0] == 13, '%s token not working')
+
+    def test11_namedParm_lim(self):
+        """Test -- commenting w/o newline"""
+        q = """SELECT %(one)s;
+            """
+        r = self._fetchOne(q, {'one': 14})
+        self.assert_(int(r[0]) == 14, '%%\(one\)s token not working %s' % r[0])
+
+    def test12_namedParm1_lim(self):
+        """Test -- commenting w/o newline"""
+        q = """SELECT %(two);
+            """
+        r = self._fetchOne(q, {'two': 15})
+        self.assert_(int(r[0]) == 15, '%%\(one\) token not working %s' % r[0])
+
+
+class test_Rdbhdb_sql_ws(test_Rdbhdb_sql):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_sql.HOST,
+        'useWebsocket': True
+    }
+
+
 if __name__ == '__main__':
     unittest.main()

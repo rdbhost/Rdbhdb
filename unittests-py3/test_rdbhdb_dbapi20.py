@@ -9,9 +9,9 @@ sys.path.insert(0, '..\lib')
 
 from rdbhdb import rdbhdb
 
-need_version = '0.9.3'
+need_version = '0.10.0'
 
-class test_Rdbhdb(dbapi20.DatabaseAPI20Test):
+class test_Rdbhdb_dbapi20(dbapi20.DatabaseAPI20Test):
     driver = rdbhdb
 
     # get choice of server from environment
@@ -53,6 +53,17 @@ class test_Rdbhdb(dbapi20.DatabaseAPI20Test):
 
     def test_nextset(self): 
         """tested in another module. """
+
+
+class test_Rdbhdb_dbapi20_ws(test_Rdbhdb_dbapi20):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_dbapi20.HOST,
+        'useWebsocket': True
+    }
+
 
 if __name__ == '__main__':
     unittest.main()

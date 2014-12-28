@@ -9,7 +9,7 @@ sys.path.insert(0, '..\lib')
 from rdbhdb import rdbhdb
 from rdbhdb import extras
 
-need_version = '0.9.3'
+need_version = '0.10.0'
 
 
 class test_Rdbhdb_extras(unittest.TestCase):
@@ -345,7 +345,18 @@ class test_Rdbhdb_extras(unittest.TestCase):
                     )
         finally:
             logcon.close()
-            
+
+
+class test_Rdbhdb_extras_ws(test_Rdbhdb_extras):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_extras.HOST,
+        'useWebsocket': True
+    }
+
+
 if __name__ == '__main__':
     unittest.main()
     

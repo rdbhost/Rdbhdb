@@ -10,7 +10,7 @@ sys.path.insert(0, '..\lib')
 
 from rdbhdb import rdbhdb
 
-need_version = '0.9.3'
+need_version = '0.10.1'
 
 class test_Rdbhdb_autorefill(unittest.TestCase):
 
@@ -357,6 +357,17 @@ class test_Rdbhdb_autorefill(unittest.TestCase):
         finally:
             con.close()
 
-            
+
+class test_Rdbhdb_autorefill_ws(test_Rdbhdb_autorefill):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_autorefill.HOST,
+        'useWebsocket': True
+    }
+
+
+
 if __name__ == '__main__':
     unittest.main()

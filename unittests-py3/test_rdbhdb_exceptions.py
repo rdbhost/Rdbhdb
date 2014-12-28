@@ -10,9 +10,9 @@ sys.path.insert(0, '..\lib')
 
 from rdbhdb import rdbhdb
 
-need_version = '0.9.3'
+need_version = '0.10.0'
 
-class test_Rdbhdb(dbexceptions.DatabaseExcTest):
+class test_Rdbhdb_dbexc(dbexceptions.DatabaseExcTest):
     driver = rdbhdb
     
         # get choice of server from environment
@@ -47,6 +47,16 @@ class test_Rdbhdb(dbexceptions.DatabaseExcTest):
         
     def test1_version(self):
         self.assertTrue(rdbhdb.__version__ >= need_version, rdbhdb.__version__)
+
+
+class test_Rdbhdb_dbexc_ws(test_Rdbhdb_dbexc):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_dbexc.HOST,
+        'useWebsocket': True
+    }
 
 
 if __name__ == '__main__':

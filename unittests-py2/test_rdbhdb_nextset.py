@@ -12,7 +12,7 @@ sys.path.insert(0, '..\lib')
 
 from rdbhdb import rdbhdb
 
-need_version = '0.9.3'
+need_version = '0.10.0'
 
 class test_nextset(unittest.TestCase):
 
@@ -216,7 +216,17 @@ class test_nextset(unittest.TestCase):
 
         finally:
             con.close()
-            
+
+
+class test_nextset_ws(test_nextset):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': test_nextset.HOST,
+        'useWebsocket': True
+    }
+
             
 if __name__ == '__main__':
     unittest.main()

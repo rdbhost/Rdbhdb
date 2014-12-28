@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-''' unit test suite for file upload features of rdbhdb'''
+''' unit test suite for compressed features of rdbhdb'''
 
 import unittest
 import time
@@ -41,7 +41,7 @@ class test_Rdbhdb_compressedRequest(unittest.TestCase):
         try:
             con = self._connect()
             con.close()
-        except Exception, e:
+        except Exception as e:
             print 'connection not made. %s db must be created online.' % e[0]
             sys.exit(2)
         
@@ -119,6 +119,16 @@ class test_Rdbhdb_compressedRequest(unittest.TestCase):
             self.failUnless(cur.rowcount in (-1, 1))
         finally:
             con.close()
+
+
+class test_Rdbhdb_compressedRequest_ws(test_Rdbhdb_compressedRequest):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_compressedRequest.HOST,
+        'useWebsocket': True
+    }
 
 
             

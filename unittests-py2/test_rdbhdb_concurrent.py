@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-''' unit test suite for file upload features of rdbhdb'''
+''' unit test suite for concurrent requests to rdbhdb'''
 
 import unittest
 import time
@@ -11,7 +11,7 @@ sys.path.insert(0, '..\lib')
 
 from rdbhdb import rdbhdb
 
-need_version = '0.9.5'
+need_version = '0.10.0'
 
 class test_Rdbhdb_concurrentRequest(unittest.TestCase):
 
@@ -105,6 +105,16 @@ class test_Rdbhdb_concurrentRequest(unittest.TestCase):
 
         finally:
             con.close()
+
+
+class test_Rdbhdb_concurrentRequest_ws(test_Rdbhdb_concurrentRequest):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_concurrentRequest.HOST,
+        'useWebsocket': True
+    }
 
 
 

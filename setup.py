@@ -6,7 +6,7 @@ from distutils.core import setup
 
 
 setup(name="rdbhdb",
-      version='0.9.8',
+      version='0.10.0',
       description="DB API module for accessing hosted databases at www.rdbhost.com",
       author='David Keeney, Kris Sundaram',
       author_email='dkeeney@rdbhost.com, sundram@hotmail.com',

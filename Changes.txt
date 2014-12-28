@@ -2,6 +2,17 @@
 
 Changes to Rdbhdb module
 
+0.10.0
+
+Took aiohttp dependency out, replacing it with yieldfrom urllib3
+
+
+0.9.9
+
+Removed use of timeout keyword param for calls to
+aiohttp.request.
+
+
 0.9.8
 
 Removed locking, as locking was seriously interfering with
@@ -9,8 +20,8 @@ fast parallel action.
 
 All connection attributes are now one in tuple, and reading
 and writing that tuple are both atomic operations, so locking
-is superfluous.  It was always a bit paranoid, but now it is
-pointless, and gone.
+is superfluous.  The locking was always a bit paranoid, but now
+it is pointless, and gone.
 
 Added tests to verify concurrent operation. Tests with asyncio
 for the py3aio suite, and with threading for the others.

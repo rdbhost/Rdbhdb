@@ -11,7 +11,7 @@ sys.path.insert(0, '..\lib')
 
 from rdbhdb import rdbhdb
 
-need_version = '0.9.3'
+need_version = '0.10.0'
 
 class test_Rdbhdb_fileupload(unittest.TestCase):
 
@@ -123,6 +123,16 @@ class test_Rdbhdb_fileupload(unittest.TestCase):
         finally:
             con.close()
 
-            
+
+class test_Rdbhdb_fileupload_ws(test_Rdbhdb_fileupload):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_fileupload.HOST,
+        'useWebsocket': True
+    }
+
+
 if __name__ == '__main__':
     unittest.main()

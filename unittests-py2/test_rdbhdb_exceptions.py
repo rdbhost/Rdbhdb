@@ -9,7 +9,7 @@ sys.path.insert(0, '..\lib')
 
 from rdbhdb import rdbhdb
 
-need_version = '0.9.3'
+need_version = '0.10.0'
 
 class test_Rdbhdb_dbexc(dbexceptions.DatabaseExcTest):
 
@@ -50,6 +50,17 @@ class test_Rdbhdb_dbexc(dbexceptions.DatabaseExcTest):
         lVersion = rdbhdb.__version__.split('.')
         nVersion = need_version.split('.')
         self.assert_(lVersion >= nVersion, rdbhdb.__version__)
+
+
+class test_Rdbhdb_dbexc_ws(test_Rdbhdb_dbexc):
+
+    connect_kw_args = {
+        'role': accounts.demo['role'],
+        'authcode': accounts.demo['authcode'],
+        'host': test_Rdbhdb_dbexc.HOST,
+        'useWebsocket': True
+    }
+
 
 
 if __name__ == '__main__':
