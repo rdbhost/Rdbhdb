@@ -19,7 +19,7 @@ def asyncio_ruc(f):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(f())
 
-need_version = '0.10.0'
+need_version = '0.11.0'
 
 
 class test_Rdbhdb_dbapi20(dbapi20.DatabaseAPI20Test):

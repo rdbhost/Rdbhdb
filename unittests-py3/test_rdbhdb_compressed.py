@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ''' unit test suite for file upload features of rdbhdb'''
 
 import unittest
@@ -10,7 +10,7 @@ sys.path.insert(0, '..\lib')
 
 from rdbhdb import rdbhdb
 
-need_version = '0.10.0'
+need_version = '0.11.0'
 
 class test_Rdbhdb_compressedRequest(unittest.TestCase):
 

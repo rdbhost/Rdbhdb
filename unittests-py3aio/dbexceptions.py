@@ -44,7 +44,7 @@ def asyncio_ruc_stat(f, *args):
     g.next()
     _r = yield from g;
 
-need_version = '0.10.0'
+need_version = '0.11.0'
 
 # $Log: dbapi20.py, v $
 # Revision 1.10  2003/10/09 03:14:14  zenzen
