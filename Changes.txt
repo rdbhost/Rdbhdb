@@ -5,6 +5,7 @@ Changes to Rdbhdb module
 0.11.0
 
 Added websocket usage.  Now connections can be made via websocket, hopefully faster.
+Also added websocket mode to all test modules.
 
 
 0.10.0
