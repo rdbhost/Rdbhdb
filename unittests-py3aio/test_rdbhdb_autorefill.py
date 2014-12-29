@@ -28,18 +28,18 @@ class test_Rdbhdb_autorefill(unittest.TestCase):
 
     # get choice of server from environment
     HOST = os.environ.get('RDBHOST_TEST', "dev.rdbhost.com").strip("'")
-    #print >> sys.stderr, 'Using SERVER', HOST
 
     connect_args = ()
     connect_kw_args = {
         'asyncio': True,
         'role': accounts.demo['role'],
         'authcode': accounts.demo['authcode'],
-        'host': HOST}
+        'host': HOST
+    }
 
-    lower_func = 'lower' # For stored procedure test
+    lower_func = 'lower'  # For stored procedure test
 
-    table_prefix = 'extras_' # If you need to specify a prefix for tables
+    table_prefix = 'extras_'  # If you need to specify a prefix for tables
 
     ddl1 = '''CREATE TABLE %scities (name varchar(80));''' % table_prefix
     ddl2 = '''CREATE TABLE %sstates (name varchar(80));''' % table_prefix
@@ -71,7 +71,6 @@ class test_Rdbhdb_autorefill(unittest.TestCase):
         yield from self._tearDown()
 
     def _tearDown(self):
-        # self.assertTrue(False, 1)
         con = self._connect()
         try:
             cur = con.cursor()
@@ -86,13 +85,9 @@ class test_Rdbhdb_autorefill(unittest.TestCase):
         finally:
             con.close()
 
-    #@asyncio_meth_ruc
     def setUp(self):
         # Call superclass setUp In case this does something in the
         # future
-        # self.assertTrue(False, 2)
-        #yield from []
-        #yield from self._tearDown()
         try:
             con = self._connect()
             con.close()
